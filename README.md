@@ -21,6 +21,11 @@ install dev dependencies
 
 ### `npm install`
 
+## Init Firebase Configuration
+
+- Create a new project on firebase console
+- Create a firebase web app and copy the configs to firebaseConfig.js file in root directory
+
 ## Then
 
 Run The app
