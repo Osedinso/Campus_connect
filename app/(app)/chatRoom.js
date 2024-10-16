@@ -11,9 +11,13 @@ import { useAuth } from '../../context/authContext';
 import { getRoomId } from '../../utils/common';
 import { Timestamp, addDoc, collection, doc, onSnapshot, orderBy, query, setDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ChatRoom() {
-    const item = useLocalSearchParams(); // second user
+    const params = useLocalSearchParams();
+    const item = params;
+    const isGroupChat = params?.isGroupChat === 'true'; // Ensure it's a boolean
+    const roomIdParam = params?.roomId;
     const {user} = useAuth(); // logged in user
     const router = useRouter();
     const [messages, setMessages] = useState([]);
@@ -57,14 +61,21 @@ export default function ChatRoom() {
         },100)
     }
 
-    const createRoomIfNotExists = async ()=>{
-        // roomId
-        let roomId = getRoomId(user?.userId, item?.userId);
+    const createRoomIfNotExists = async () => {
+        let roomId = roomIdParam || getRoomId(user?.userId, item?.userId);
+        
+        if (isGroupChat) {
+          // For group chats, assume the room already exists
+          return;
+        }
+      
         await setDoc(doc(db, "rooms", roomId), {
-           roomId,
-           createdAt: Timestamp.fromDate(new Date()) 
+          roomId,
+          createdAt: Timestamp.fromDate(new Date()),
+          participants: [user?.userId, item?.userId],
+          isGroupChat: false,
         });
-    }
+      };
 
     const hanldeSendMessage = async ()=>{
         let message = textRef.current.trim();

@@ -25,9 +25,21 @@ export default function SignIn() {
         setLoading(true);
         const response = await login(emailRef.current, passwordRef.current);
         setLoading(false);
-        console.log('sign in reposnse: ', response);
+        console.log('sign in response: ', response);
         if(!response.success){
             Alert.alert('Sign In', response.msg);
+        }
+        else {
+            // Replace the current screen with the Dashboard
+            router.replace('(app)/Dashboard');
+            
+            // Optionally, reset the navigation state to prevent going back
+            if (navigationState?.key) {
+                router.reset({
+                    index: 0,
+                    routes: [{ name: '(app)/Dashboard' }],
+                });
+            }
         }
     }
   return (
@@ -41,7 +53,7 @@ export default function SignIn() {
 
 
         <View className="gap-10">
-            <Text style={{fontSize: hp(4)}} className="font-bold tracking-wider text-center text-neutral-800">Sign In</Text>
+            <Text style={{fontSize: hp(4)}} className="font-bold tracking-wider text-center text-neutral-800">Welcome to Campus Connect!</Text>
             {/* inputs */}
             <View className="gap-4">
                 <View style={{height: hp(7)}} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-xl">
