@@ -3,6 +3,7 @@
 const {onRequest} = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const cors = require("cors")({origin: true});
+const {defineSecret} = require("firebase-functions/params");
 const {OpenAI} = require("openai");
 
 if (admin.apps.length === 0) {
@@ -10,11 +11,10 @@ if (admin.apps.length === 0) {
 }
 
 // Define the secret for OpenAI API Key
-// eslint-disable-next-line max-len
-const OPENAI_API_KEY = "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";
-
+const OPENAI_API_KEY = defineSecret("OPENAI_API_KEY");
 exports.chatCompletion = onRequest(
     {
+      secrets: [OPENAI_API_KEY],
       region: "us-central1", // Replace with your region if different
     // Uncomment the following line to allow unauthenticated access
     // accessControl: { allowUnauthenticated: true },
@@ -40,7 +40,7 @@ exports.chatCompletion = onRequest(
 
           // Initialize OpenAI API with the API key
           const openai = new OpenAI({
-            apiKey: OPENAI_API_KEY,
+            apiKey: OPENAI_API_KEY.value(),
           });
 
           const messages = [
