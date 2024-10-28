@@ -1,0 +1,977 @@
+[debug] [2024-10-28T01:58:01.895Z] ----------------------------------------------------------------------
+[debug] [2024-10-28T01:58:01.896Z] Command:       /Users/a17274/.nvm/versions/node/v18.20.4/bin/node /Users/a17274/.nvm/versions/node/v16.20.2/bin/firebase emulators:start --only functions,auth
+[debug] [2024-10-28T01:58:01.896Z] CLI Version:   13.23.0
+[debug] [2024-10-28T01:58:01.896Z] Platform:      darwin
+[debug] [2024-10-28T01:58:01.896Z] Node Version:  v18.20.4
+[debug] [2024-10-28T01:58:01.899Z] Time:          Sun Oct 27 2024 20:58:01 GMT-0500 (Central Daylight Time)
+[debug] [2024-10-28T01:58:01.899Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-10-28T01:58:01.952Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-10-28T01:58:01.952Z] > authorizing via signed-in user (rrichardose@gmail.com)
+[info] i  emulators: Starting emulators: functions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions"}}
+[warn] ⚠  auth: Not starting the auth emulator, make sure you have run firebase init. {"metadata":{"emulator":{"name":"auth"},"message":"Not starting the \u001b[1mauth\u001b[22m emulator, make sure you have run \u001b[1mfirebase init\u001b[22m."}}
+[debug] [2024-10-28T01:58:02.096Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-28T01:58:02.096Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2024-10-28T01:58:02.099Z] [hub] writing locator at /var/folders/k5/1hmjp0zj64g2v1_f9nbhblkc0000gn/T/hub-campusconnect-1ffa8.json
+[debug] [2024-10-28T01:58:02.222Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-28T01:58:02.223Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-28T01:58:02.223Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-28T01:58:02.223Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] ⚠  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: auth, firestore, database, hosting, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mauth, firestore, database, hosting, pubsub, storage, dataconnect\u001b[22m"}}
+[debug] [2024-10-28T01:58:02.224Z] defaultcredentials: writing to file /Users/a17274/.config/firebase/rrichardose_gmail_com_application_default_credentials.json
+[debug] [2024-10-28T01:58:02.228Z] Setting GAC to /Users/a17274/.config/firebase/rrichardose_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to /Users/a17274/.config/firebase/rrichardose_gmail_com_application_default_credentials.json"}}
+[debug] [2024-10-28T01:58:02.228Z] Checked if tokens are valid: true, expires at: 1730081817536
+[debug] [2024-10-28T01:58:02.228Z] Checked if tokens are valid: true, expires at: 1730081817536
+[debug] [2024-10-28T01:58:02.228Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/campusconnect-1ffa8/adminSdkConfig [none]
+[debug] [2024-10-28T01:58:02.502Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/campusconnect-1ffa8/adminSdkConfig 200
+[debug] [2024-10-28T01:58:02.502Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/campusconnect-1ffa8/adminSdkConfig {"projectId":"campusconnect-1ffa8","storageBucket":"campusconnect-1ffa8.appspot.com"}
+[info] i  ui: downloading ui-v1.14.0.zip... {"metadata":{"emulator":{"name":"ui"},"message":"downloading ui-v1.14.0.zip..."}}
+[debug] [2024-10-28T01:58:02.531Z] >>> [apiv2][query] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip 
+[debug] [2024-10-28T01:58:02.692Z] <<< [apiv2][status] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip 200
+[debug] [2024-10-28T01:58:02.692Z] <<< [apiv2][body] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip [stream]
+[debug] [2024-10-28T01:58:02.948Z] Data is 3615311
+[debug] [2024-10-28T01:58:02.949Z] [unzip] Entry: client/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:02.949Z] [unzip] Processing entry: client/
+[debug] [2024-10-28T01:58:02.949Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/
+[debug] [2024-10-28T01:58:02.949Z] [unzip] Entry: client/favicon-16x16.png (compressed_size=293 bytes, uncompressed_size=293 bytes)
+[debug] [2024-10-28T01:58:02.949Z] [unzip] Processing entry: client/favicon-16x16.png
+[debug] [2024-10-28T01:58:02.949Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.949Z] [unzip] Writing file: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/favicon-16x16.png
+[debug] [2024-10-28T01:58:02.949Z] [unzip] Entry: client/safari-pinned-tab.svg (compressed_size=1433 bytes, uncompressed_size=2611 bytes)
+[debug] [2024-10-28T01:58:02.950Z] [unzip] Processing entry: client/safari-pinned-tab.svg
+[debug] [2024-10-28T01:58:02.950Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.950Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/safari-pinned-tab.svg
+[debug] [2024-10-28T01:58:02.952Z] [unzip] Entry: client/favicon.ico (compressed_size=2933 bytes, uncompressed_size=13294 bytes)
+[debug] [2024-10-28T01:58:02.952Z] [unzip] Processing entry: client/favicon.ico
+[debug] [2024-10-28T01:58:02.952Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.952Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/favicon.ico
+[debug] [2024-10-28T01:58:02.952Z] [unzip] Entry: client/index.html (compressed_size=1363 bytes, uncompressed_size=3071 bytes)
+[debug] [2024-10-28T01:58:02.952Z] [unzip] Processing entry: client/index.html
+[debug] [2024-10-28T01:58:02.952Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.952Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/index.html
+[debug] [2024-10-28T01:58:02.953Z] [unzip] Entry: client/android-chrome-192x192.png (compressed_size=2684 bytes, uncompressed_size=2684 bytes)
+[debug] [2024-10-28T01:58:02.953Z] [unzip] Processing entry: client/android-chrome-192x192.png
+[debug] [2024-10-28T01:58:02.953Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.953Z] [unzip] Writing file: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/android-chrome-192x192.png
+[debug] [2024-10-28T01:58:02.953Z] [unzip] Entry: client/apple-touch-icon.png (compressed_size=2123 bytes, uncompressed_size=2152 bytes)
+[debug] [2024-10-28T01:58:02.953Z] [unzip] Processing entry: client/apple-touch-icon.png
+[debug] [2024-10-28T01:58:02.953Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.953Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/apple-touch-icon.png
+[debug] [2024-10-28T01:58:02.954Z] [unzip] Entry: client/android-chrome-512x512.png (compressed_size=5369 bytes, uncompressed_size=5411 bytes)
+[debug] [2024-10-28T01:58:02.954Z] [unzip] Processing entry: client/android-chrome-512x512.png
+[debug] [2024-10-28T01:58:02.954Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.954Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/android-chrome-512x512.png
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Entry: client/manifest.json (compressed_size=245 bytes, uncompressed_size=551 bytes)
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Processing entry: client/manifest.json
+[debug] [2024-10-28T01:58:02.958Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.958Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/manifest.json
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Entry: client/robots.txt (compressed_size=26 bytes, uncompressed_size=26 bytes)
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Processing entry: client/robots.txt
+[debug] [2024-10-28T01:58:02.958Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Writing file: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/robots.txt
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Entry: client/mstile-150x150.png (compressed_size=2034 bytes, uncompressed_size=2034 bytes)
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Processing entry: client/mstile-150x150.png
+[debug] [2024-10-28T01:58:02.958Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Writing file: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/mstile-150x150.png
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Entry: client/assets/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Processing entry: client/assets/
+[debug] [2024-10-28T01:58:02.958Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Entry: client/assets/index-ClZTY_JS.js.map (compressed_size=2328270 bytes, uncompressed_size=9947004 bytes)
+[debug] [2024-10-28T01:58:02.958Z] [unzip] Processing entry: client/assets/index-ClZTY_JS.js.map
+[debug] [2024-10-28T01:58:02.958Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets
+[debug] [2024-10-28T01:58:02.959Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/index-ClZTY_JS.js.map
+[debug] [2024-10-28T01:58:02.987Z] [unzip] Entry: client/assets/index-ClZTY_JS.js (compressed_size=567195 bytes, uncompressed_size=2035940 bytes)
+[debug] [2024-10-28T01:58:02.987Z] [unzip] Processing entry: client/assets/index-ClZTY_JS.js
+[debug] [2024-10-28T01:58:02.987Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets
+[debug] [2024-10-28T01:58:02.987Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/index-ClZTY_JS.js
+[debug] [2024-10-28T01:58:03.000Z] [unzip] Entry: client/assets/index-BdgySamB.css (compressed_size=35979 bytes, uncompressed_size=298654 bytes)
+[debug] [2024-10-28T01:58:03.000Z] [unzip] Processing entry: client/assets/index-BdgySamB.css
+[debug] [2024-10-28T01:58:03.000Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets
+[debug] [2024-10-28T01:58:03.000Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/index-BdgySamB.css
+[debug] [2024-10-28T01:58:03.001Z] [unzip] Entry: client/assets/extensions/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:03.001Z] [unzip] Processing entry: client/assets/extensions/
+[debug] [2024-10-28T01:58:03.001Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/extensions/
+[debug] [2024-10-28T01:58:03.001Z] [unzip] Entry: client/assets/extensions/default-extension.png (compressed_size=1646 bytes, uncompressed_size=1657 bytes)
+[debug] [2024-10-28T01:58:03.001Z] [unzip] Processing entry: client/assets/extensions/default-extension.png
+[debug] [2024-10-28T01:58:03.001Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/extensions
+[debug] [2024-10-28T01:58:03.001Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/extensions/default-extension.png
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Entry: client/assets/img/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Processing entry: client/assets/img/
+[debug] [2024-10-28T01:58:03.002Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/img/
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Entry: client/assets/img/database.png (compressed_size=29449 bytes, uncompressed_size=29988 bytes)
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Processing entry: client/assets/img/database.png
+[debug] [2024-10-28T01:58:03.002Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/img
+[debug] [2024-10-28T01:58:03.002Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/img/database.png
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Entry: client/assets/provider-icons/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Processing entry: client/assets/provider-icons/
+[debug] [2024-10-28T01:58:03.002Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Entry: client/assets/provider-icons/auth_service_saml.svg (compressed_size=575 bytes, uncompressed_size=1226 bytes)
+[debug] [2024-10-28T01:58:03.002Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_saml.svg
+[debug] [2024-10-28T01:58:03.002Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.002Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_saml.svg
+[debug] [2024-10-28T01:58:03.003Z] [unzip] Entry: client/assets/provider-icons/auth_service_phone.svg (compressed_size=261 bytes, uncompressed_size=414 bytes)
+[debug] [2024-10-28T01:58:03.003Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_phone.svg
+[debug] [2024-10-28T01:58:03.003Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.003Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_phone.svg
+[debug] [2024-10-28T01:58:03.003Z] [unzip] Entry: client/assets/provider-icons/auth_service_facebook.svg (compressed_size=289 bytes, uncompressed_size=457 bytes)
+[debug] [2024-10-28T01:58:03.003Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_facebook.svg
+[debug] [2024-10-28T01:58:03.003Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.003Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_facebook.svg
+[debug] [2024-10-28T01:58:03.003Z] [unzip] Entry: client/assets/provider-icons/auth_service_game_center.svg (compressed_size=991 bytes, uncompressed_size=3921 bytes)
+[debug] [2024-10-28T01:58:03.003Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_game_center.svg
+[debug] [2024-10-28T01:58:03.003Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.003Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_game_center.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Entry: client/assets/provider-icons/auth_service_apple.svg (compressed_size=230 bytes, uncompressed_size=334 bytes)
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_apple.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.004Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_apple.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Entry: client/assets/provider-icons/auth_service_github.svg (compressed_size=466 bytes, uncompressed_size=838 bytes)
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_github.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.004Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_github.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Entry: client/assets/provider-icons/auth_service_mslive.svg (compressed_size=203 bytes, uncompressed_size=378 bytes)
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_mslive.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.004Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_mslive.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Entry: client/assets/provider-icons/auth_service_yahoo.svg (compressed_size=577 bytes, uncompressed_size=1182 bytes)
+[debug] [2024-10-28T01:58:03.004Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_yahoo.svg
+[debug] [2024-10-28T01:58:03.004Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.004Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_yahoo.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Entry: client/assets/provider-icons/auth_service_twitter.svg (compressed_size=444 bytes, uncompressed_size=751 bytes)
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_twitter.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.005Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_twitter.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Entry: client/assets/provider-icons/auth_service_play_games.svg (compressed_size=565 bytes, uncompressed_size=1173 bytes)
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_play_games.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.005Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_play_games.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Entry: client/assets/provider-icons/auth_service_email.svg (compressed_size=228 bytes, uncompressed_size=326 bytes)
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_email.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.005Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_email.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Entry: client/assets/provider-icons/auth_service_google.svg (compressed_size=409 bytes, uncompressed_size=720 bytes)
+[debug] [2024-10-28T01:58:03.005Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_google.svg
+[debug] [2024-10-28T01:58:03.005Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.005Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_google.svg
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Entry: client/assets/provider-icons/auth_service_oidc.svg (compressed_size=414 bytes, uncompressed_size=858 bytes)
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Processing entry: client/assets/provider-icons/auth_service_oidc.svg
+[debug] [2024-10-28T01:58:03.006Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons
+[debug] [2024-10-28T01:58:03.006Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/assets/provider-icons/auth_service_oidc.svg
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Entry: client/browserconfig.xml (compressed_size=491 bytes, uncompressed_size=822 bytes)
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Processing entry: client/browserconfig.xml
+[debug] [2024-10-28T01:58:03.006Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:03.006Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/browserconfig.xml
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Entry: client/favicon-32x32.png (compressed_size=475 bytes, uncompressed_size=475 bytes)
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Processing entry: client/favicon-32x32.png
+[debug] [2024-10-28T01:58:03.006Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Writing file: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/client/favicon-32x32.png
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Entry: server/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Processing entry: server/
+[debug] [2024-10-28T01:58:03.006Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Entry: server/server.mjs.map (compressed_size=296496 bytes, uncompressed_size=1355667 bytes)
+[debug] [2024-10-28T01:58:03.006Z] [unzip] Processing entry: server/server.mjs.map
+[debug] [2024-10-28T01:58:03.006Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server
+[debug] [2024-10-28T01:58:03.006Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/server.mjs.map
+[debug] [2024-10-28T01:58:03.011Z] [unzip] Entry: server/server.mjs (compressed_size=315701 bytes, uncompressed_size=1172682 bytes)
+[debug] [2024-10-28T01:58:03.011Z] [unzip] Processing entry: server/server.mjs
+[debug] [2024-10-28T01:58:03.011Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server
+[debug] [2024-10-28T01:58:03.011Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/server.mjs
+[debug] [2024-10-28T01:58:03.015Z] [unzip] Entry: server/assets/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2024-10-28T01:58:03.015Z] [unzip] Processing entry: server/assets/
+[debug] [2024-10-28T01:58:03.015Z] [unzip] mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/assets/
+[debug] [2024-10-28T01:58:03.015Z] [unzip] Entry: server/assets/multipart-parser-DGCUZdXu.mjs.map (compressed_size=4791 bytes, uncompressed_size=17918 bytes)
+[debug] [2024-10-28T01:58:03.015Z] [unzip] Processing entry: server/assets/multipart-parser-DGCUZdXu.mjs.map
+[debug] [2024-10-28T01:58:03.015Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/assets
+[debug] [2024-10-28T01:58:03.015Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/assets/multipart-parser-DGCUZdXu.mjs.map
+[debug] [2024-10-28T01:58:03.015Z] [unzip] Entry: server/assets/multipart-parser-DGCUZdXu.mjs (compressed_size=2621 bytes, uncompressed_size=10390 bytes)
+[debug] [2024-10-28T01:58:03.015Z] [unzip] Processing entry: server/assets/multipart-parser-DGCUZdXu.mjs
+[debug] [2024-10-28T01:58:03.015Z] [unzip] else mkdir: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/assets
+[debug] [2024-10-28T01:58:03.015Z] [unzip] deflating: /Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/assets/multipart-parser-DGCUZdXu.mjs
+[debug] [2024-10-28T01:58:03.019Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2024-10-28T01:58:03.020Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2024-10-28T01:58:03.020Z] Starting Emulator UI with command {"binary":"node","args":["/Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/server.mjs"],"optionalArgs":[],"joinArgs":false,"shell":false,"port":4000} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"/Users/a17274/.cache/firebase/emulators/ui-v1.14.0/server/server.mjs\"],\"optionalArgs\":[],\"joinArgs\":false,\"shell\":false,\"port\":4000}"}}
+[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
+[debug] [2024-10-28T01:58:03.073Z] Web / API server started at 127.0.0.1:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at 127.0.0.1:4000\n"}}
+[debug] [2024-10-28T01:58:03.073Z] Web / API server started at ::1:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at ::1:4000\n"}}
+[info] i  functions: Watching "/Users/a17274/Campus_connect/functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"/Users/a17274/Campus_connect/functions\" for Cloud Functions..."}}
+[debug] [2024-10-28T01:58:03.230Z] Validating nodejs source
+[debug] [2024-10-28T01:58:03.752Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T01:58:03.753Z] Building nodejs source
+[debug] [2024-10-28T01:58:03.753Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T01:58:03.754Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T01:58:03.756Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8806
+
+[debug] [2024-10-28T01:58:04.159Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[info] ✔  functions[us-central1-chatCompletion]: http function initialized (http://127.0.0.1:5001/campusconnect-1ffa8/us-central1/chatCompletion). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/campusconnect-1ffa8/us-central1/chatCompletion)."}}
+[debug] [2024-10-28T01:58:04.169Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: connect ECONNREFUSED ::1:40001. If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub running at 127.0.0.1:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2024-10-28T02:49:40.988Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T02:49:42.043Z] Validating nodejs source
+[debug] [2024-10-28T02:49:42.764Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T02:49:42.764Z] Building nodejs source
+[debug] [2024-10-28T02:49:42.764Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T02:49:42.769Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T02:49:42.772Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8983
+
+[debug] [2024-10-28T02:49:43.064Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T02:55:45.883Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T02:55:46.893Z] Validating nodejs source
+[debug] [2024-10-28T02:55:47.436Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T02:55:47.436Z] Building nodejs source
+[debug] [2024-10-28T02:55:47.436Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T02:55:47.437Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T02:55:47.438Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8507
+
+[debug] [2024-10-28T02:55:47.726Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T02:55:58.078Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T02:55:59.080Z] Validating nodejs source
+[debug] [2024-10-28T02:55:59.503Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T02:55:59.503Z] Building nodejs source
+[debug] [2024-10-28T02:55:59.503Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T02:55:59.504Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T02:55:59.504Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8838
+
+[debug] [2024-10-28T02:55:59.858Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:08:47.071Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:08:48.088Z] Validating nodejs source
+[debug] [2024-10-28T03:08:48.624Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:08:48.624Z] Building nodejs source
+[debug] [2024-10-28T03:08:48.624Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:08:48.626Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:08:48.626Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8071
+
+[debug] [2024-10-28T03:08:48.945Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:17:00.896Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:17:01.905Z] Validating nodejs source
+[debug] [2024-10-28T03:17:02.417Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:17:02.417Z] Building nodejs source
+[debug] [2024-10-28T03:17:02.417Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:17:02.418Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:17:02.419Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8104
+
+[debug] [2024-10-28T03:17:02.651Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"secretEnvironmentVariables":[{"key":"OPENAI_API_KEY"}],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"OPENAI_API_KEY"}]}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:17:45.195Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:17:46.198Z] Validating nodejs source
+[debug] [2024-10-28T03:17:46.646Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:17:46.647Z] Building nodejs source
+[debug] [2024-10-28T03:17:46.647Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:17:46.647Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:17:46.648Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8455
+
+[debug] [2024-10-28T03:17:46.966Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"secretEnvironmentVariables":[{"key":"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"}],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:18:23.404Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:18:24.407Z] Validating nodejs source
+[debug] [2024-10-28T03:18:24.765Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:18:24.765Z] Building nodejs source
+[debug] [2024-10-28T03:18:24.765Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:18:24.765Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:18:24.766Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8338
+
+[debug] [2024-10-28T03:18:24.878Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"secretEnvironmentVariables":[{"key":"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"}],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:19:12.467Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:19:13.469Z] Validating nodejs source
+[debug] [2024-10-28T03:19:13.923Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:19:13.923Z] Building nodejs source
+[debug] [2024-10-28T03:19:13.924Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:19:13.924Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:19:13.924Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8313
+
+[debug] [2024-10-28T03:19:14.147Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:22:56.812Z] File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:22:56.813Z] File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:22:57.815Z] Validating nodejs source
+[debug] [2024-10-28T03:22:58.252Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:22:58.253Z] Building nodejs source
+[debug] [2024-10-28T03:22:58.253Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:22:58.254Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:22:58.254Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8869
+
+[debug] [2024-10-28T03:22:58.463Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:24:03.192Z] File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:24:04.197Z] Validating nodejs source
+[debug] [2024-10-28T03:24:04.609Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:24:04.609Z] Building nodejs source
+[debug] [2024-10-28T03:24:04.609Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:24:04.610Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:24:04.611Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8928
+
+[debug] [2024-10-28T03:24:04.822Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:24:59.797Z] File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:25:00.800Z] Validating nodejs source
+[debug] [2024-10-28T03:25:01.254Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:25:01.254Z] Building nodejs source
+[debug] [2024-10-28T03:25:01.255Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:25:01.255Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:25:01.256Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8242
+
+[debug] [2024-10-28T03:25:01.652Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:37:13.013Z] File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:37:13.014Z] File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:37:14.017Z] Validating nodejs source
+[debug] [2024-10-28T03:37:14.418Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:37:14.418Z] Building nodejs source
+[debug] [2024-10-28T03:37:14.419Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:37:14.420Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:37:14.420Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8924
+
+[debug] [2024-10-28T03:37:14.633Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:37:19.035Z] File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:37:19.035Z] File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/package-lock.json changed, reloading triggers"}}
+[debug] [2024-10-28T03:37:20.036Z] Validating nodejs source
+[debug] [2024-10-28T03:37:20.355Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:37:20.355Z] Building nodejs source
+[debug] [2024-10-28T03:37:20.355Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:37:20.355Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:37:20.355Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8610
+
+[debug] [2024-10-28T03:37:20.506Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:37:44.808Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:37:45.813Z] Validating nodejs source
+[debug] [2024-10-28T03:37:46.169Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:37:46.170Z] Building nodejs source
+[debug] [2024-10-28T03:37:46.170Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:37:46.171Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:37:46.171Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8849
+
+[debug] [2024-10-28T03:37:46.290Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:42:50.899Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:42:51.906Z] Validating nodejs source
+[debug] [2024-10-28T03:42:52.411Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:42:52.411Z] Building nodejs source
+[debug] [2024-10-28T03:42:52.412Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:42:52.413Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:42:52.414Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8601
+
+[debug] [2024-10-28T03:42:52.781Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T03:45:47.684Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T03:45:48.692Z] Validating nodejs source
+[debug] [2024-10-28T03:45:49.220Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T03:45:49.221Z] Building nodejs source
+[debug] [2024-10-28T03:45:49.221Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T03:45:49.222Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T03:45:49.223Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8392
+
+[debug] [2024-10-28T03:45:49.554Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T04:04:20.226Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T04:04:21.244Z] Validating nodejs source
+[debug] [2024-10-28T04:04:21.896Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T04:04:21.897Z] Building nodejs source
+[debug] [2024-10-28T04:04:21.897Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T04:04:21.898Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T04:04:21.900Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8021
+
+[debug] [2024-10-28T04:04:22.153Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T04:09:00.777Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T04:09:01.785Z] Validating nodejs source
+[debug] [2024-10-28T04:09:02.288Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T04:09:02.289Z] Building nodejs source
+[debug] [2024-10-28T04:09:02.289Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T04:09:02.290Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T04:09:02.290Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8026
+
+[debug] [2024-10-28T04:09:02.676Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
+[debug] [2024-10-28T04:13:23.815Z] File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/a17274/Campus_connect/functions/chat_completion.js changed, reloading triggers"}}
+[debug] [2024-10-28T04:13:24.833Z] Validating nodejs source
+[debug] [2024-10-28T04:13:25.439Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "openai": "^4.68.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-10-28T04:13:25.439Z] Building nodejs source
+[debug] [2024-10-28T04:13:25.439Z] Failed to find version of module node: reached end of search path /Users/a17274/Campus_connect/functions/node_modules
+[info] ✔  functions: Using node@18 from host. 
+[debug] [2024-10-28T04:13:25.440Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-10-28T04:13:25.442Z] Found firebase-functions binary at '/Users/a17274/Campus_connect/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8270
+
+[debug] [2024-10-28T04:13:25.697Z] Got response from /__/functions.yaml {"endpoints":{"chatCompletion":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"chatCompletion"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: chatCompletion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: chatCompletion."}}
