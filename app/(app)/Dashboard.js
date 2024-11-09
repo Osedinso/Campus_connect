@@ -10,6 +10,7 @@ import QuickExamScreen from "../Academics/Quick_exam";
 import NeedAHandScreen from "../Academics/Need_a_hand";
 import HelpAFriendScreen from "../Academics/Help_a_friend";
 import ext_Activites from "../Extra_Tabs/Ext_Activities";
+import ext_Notes from "../Extra_Tabs/Ext_Notes"
 import { NavigationContainer } from "@react-navigation/native";
 import Profile from "../Bottom_Tabs/Profile";
 import { useAuth } from '../../context/authContext';
@@ -168,6 +169,11 @@ export default function MyTabs() {
       <Tab.Screen
         name="ext_activites"
         component={ext_Activites}
+        options={{ headerShown: false, tabBarButton: () => null }}
+      />
+      <Tab.Screen
+        name="ext_notes"
+        component={ext_Notes}
         options={{ headerShown: false, tabBarButton: () => null }}
       />
     </Tab.Navigator>
