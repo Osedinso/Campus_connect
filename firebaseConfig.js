@@ -4,13 +4,18 @@ import { getReactNativePersistence, initializeAuth, getAuth } from 'firebase/aut
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore, collection } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
+<<<<<<< HEAD
 import { getStorage } from "firebase/storage";
+=======
+import { getStorage } from 'firebase/storage';
+
+>>>>>>> 33020e3ecb6aac86f4f14fea127c9f94bb99c4b2
 
 const firebaseConfig = {
   apiKey: "AIzaSyCx1AoQEcPkMgydHZ6qsJCBDLKDfnoPePI",
   authDomain: "campusconnect-1ffa8.firebaseapp.com",
   projectId: "campusconnect-1ffa8",
-  storageBucket: "campusconnect-1ffa8.appspot.com",
+  storageBucket:  "campusconnect-1ffa8.firebasestorage.app",
   messagingSenderId: "1005578659450",
   appId: "1:1005578659450:web:d67bdd79b09abab15e7dc3",
   measurementId: "G-655KRD5617"
@@ -35,7 +40,15 @@ const db = getFirestore(app);
 const functions = getFunctions(app, 'us-central1');
 const usersRef = collection(db, 'users');
 const roomRef = collection(db, 'rooms');
+<<<<<<< HEAD
 const storage = getStorage(app);
+=======
+// Add this line with your other exports
+const postsRef = collection(db, 'posts');
+const storage = getStorage(app);
+
+
+>>>>>>> 33020e3ecb6aac86f4f14fea127c9f94bb99c4b2
 
 export {
   auth,
@@ -43,5 +56,10 @@ export {
   functions,
   usersRef,
   roomRef,
+<<<<<<< HEAD
   storage,
+=======
+  postsRef,
+  storage
+>>>>>>> 33020e3ecb6aac86f4f14fea127c9f94bb99c4b2
 };
