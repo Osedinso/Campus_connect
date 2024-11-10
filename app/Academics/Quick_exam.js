@@ -149,7 +149,7 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
     });
     return correctCount;
   };
-  const renderOption = (option, questionIndex, question) => {
+const renderOption = (option, questionIndex, question) => {
     const isSelected = selectedAnswers[questionIndex] === option.letter;
     const isCorrect = question.correct_answer === option.letter;
     const isIncorrect = isSubmitted && isSelected && !isCorrect;
