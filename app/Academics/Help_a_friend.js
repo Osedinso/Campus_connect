@@ -4,7 +4,7 @@ import { collection, query, orderBy, onSnapshot, updateDoc, doc, arrayUnion } fr
 import { db } from '../../firebaseConfig';
 import { useAuth } from '../../context/authContext';
 import { AntDesign, Feather } from '@expo/vector-icons';
-import TimeAgo from 'react-native-timeago';
+import TimeAgo from 'timeago.js';
 import HomeHeader from "../../components/HomeHeader";
 
 const Help_a_friend = () => {

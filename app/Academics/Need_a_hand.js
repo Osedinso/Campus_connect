@@ -8,7 +8,7 @@ import { useAuth } from '../../context/authContext';
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import HomeHeader from "../../components/HomeHeader";
-import TimeAgo from 'react-native-timeago';
+import TimeAgo from 'timeago.js';
 
 const Need_a_hand = () => {
   const [image, setImage] = useState(null);
