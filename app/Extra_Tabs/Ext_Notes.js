@@ -8,7 +8,7 @@ import {
   ScrollView,
   Modal,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -20,11 +20,15 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as ImagePicker from 'expo-image-picker';
 
 const Ext_Activites = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [course, set_course] = useState(null);
+  const [image, setImage] = useState(null)
+  const [uploading, setUploading] = useState(false) 
   const [class_list, set_class_list] = useState([
+    
     {
       course: "CSCI 410",
     },
@@ -34,24 +38,52 @@ const Ext_Activites = ({ route, navigation }) => {
 
     set_class_list((prevCourse) => [...prevCourse, newCourse]);
   }
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    const source = { uri: result.assets[0].uri };
+    console.log(source);
+    setImage(source);
+  };
+  const uploadImage = async () => {
+    setUploading(true)
+    const response = await fetch(image.uri)
+    const blob = response.blob()
+    const filename = image.uri.substring(image.uri.lastIndexOf('/')+1)
+    var ref = firebase.storage().ref().child(filename).put(blob)
+    try {
+        await ref;
+    } catch (e){
+        console.log(e)
+    }
+    setUploading(false)
+    Alert.alert(
+        'Photo uploaded!'
+    );
+    setImage(null);
+} 
   const { cur_course } = route.params;
 
   return (
     <SafeAreaView className="flex h-screen bg-white">
       {/* This is the top nav bar  */}
       <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
-          <View className=" flex flex-row w-screen justify-start items-center">
-            <View className=" h-12 w-24 items-center  justify-center flex flex-row">
-              <TouchableOpacity
-                onPress={() => navigation.navigate("Study_Room")}
-                className=" justify-center items-center flex flex-row"
-              >
-                <Ionicons name="arrow-back-outline" size={24} color="black" />
-                <Text className="ml-3">Back</Text>
-              </TouchableOpacity>
-            </View>
+        <View className=" flex flex-row w-screen justify-start items-center">
+          <View className=" h-12 w-24 items-center  justify-center flex flex-row">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Study_Room")}
+              className=" justify-center items-center flex flex-row"
+            >
+              <Ionicons name="arrow-back-outline" size={24} color="black" />
+              <Text className="ml-3">Back</Text>
+            </TouchableOpacity>
           </View>
         </View>
+      </View>
       <ScrollView className="flex basis-4/5 bg-white ">
         {/* This is the welcome Text and date */}
         <View className="basis-1/4 w-screen flex justify-center items-center ">
@@ -130,11 +162,20 @@ const Ext_Activites = ({ route, navigation }) => {
                 placeholderTextColor="#B2ACAC"
                 onChangeText={(text) => set_course(text)}
               />
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={() => {
+                  pickImage();
+                }}
+              >
+                <Text style={styles.submitButtonText}>Select File</Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.submitButton}
                 onPress={() => {
                   submit_form();
+                  uploadImage();
                   setModalVisible(false);
                 }}
               >

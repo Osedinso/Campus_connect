@@ -10,11 +10,19 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { Calendar } from "react-native-calendars";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign, Feather, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  Ionicons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
+import { db } from "../../firebaseConfig";
+import { addDoc, collection, doc, onSnapshot } from "firebase/firestore";
+import { useAuth } from "../../context/authContext";
 
 const App = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -30,9 +38,10 @@ const App = ({ navigation }) => {
       start_hr_val: "5",
       start_min_val: "30",
       start_ampm_val: "PM",
-      checked: false
+      checked: false,
     },
   ]);
+  const { user } = useAuth();
   const [tasked_day, set_tasked_day] = useState([]);
   const [title, set_title] = useState(null);
   const [location, set_location] = useState(null);
@@ -45,22 +54,22 @@ const App = ({ navigation }) => {
   const [checked, set_checked] = useState(false);
 
   const months = [
-    { label: "Jan", value: "1" },
-    { label: "Feb", value: "2" },
-    { label: "Mar", value: "3" },
-    { label: "Apr", value: "4" },
-    { label: "May", value: "5" },
-    { label: "Jun", value: "6" },
-    { label: "Jul", value: "7" },
-    { label: "Aug", value: "8" },
-    { label: "Sep", value: "9" },
+    { label: "Jan", value: "01" },
+    { label: "Feb", value: "02" },
+    { label: "Mar", value: "03" },
+    { label: "Apr", value: "04" },
+    { label: "May", value: "05" },
+    { label: "Jun", value: "06" },
+    { label: "Jul", value: "07" },
+    { label: "Aug", value: "08" },
+    { label: "Sep", value: "09" },
     { label: "Oct", value: "10" },
     { label: "Nov", value: "11" },
     { label: "Dec", value: "12" },
   ];
   const daysOfMonth = Array.from({ length: 31 }, (_, i) => ({
-    label: String(i + 1).padStart(2, '0'),
-    value: String(i + 1).padStart(2, '0')
+    label: String(i + 1).padStart(2, "0"),
+    value: String(i + 1).padStart(2, "0"),
   }));
   const years = [
     { label: "2024", value: "2024" },
@@ -72,22 +81,20 @@ const App = ({ navigation }) => {
     { label: "2030", value: "2030" },
   ];
   const minutes = Array.from({ length: 12 }, (_, i) => ({
-    label: String(i * 5).padStart(2, '0'),
-    value: String(i * 5).padStart(2, '0')
+    label: String(i * 5).padStart(2, "0"),
+    value: String(i * 5).padStart(2, "0"),
   }));
   const hours = Array.from({ length: 12 }, (_, i) => ({
-    label: String(i + 1).padStart(2, '0'),
-    value: String(i + 1).padStart(2, '0')
+    label: String(i + 1).padStart(2, "0"),
+    value: String(i + 1).padStart(2, "0"),
   }));
   const amPm = [
     { label: "AM", value: "AM" },
     { label: "PM", value: "PM" },
   ];
 
-  const markedDates = {};
-  tasked_day.forEach((date) => {
-    markedDates[date] = { marked: true, dotColor: "#075eec" };
-  });
+  const [markedDates, setMarkedDates] = useState({});
+  const[temp_selected_day, set_temp_selected_day] = useState({})
 
   function find_day(day, month, year) {
     const date = new Date(year, month - 1, day);
@@ -102,7 +109,8 @@ const App = ({ navigation }) => {
     setEvents(updatedEvents);
   };
   
-  function submit_form() {
+
+  async function submit_form() {
     const month = months.find((month) => month.label === month_value);
     const day = find_day(
       parseInt(day_value),
@@ -111,22 +119,82 @@ const App = ({ navigation }) => {
     );
     const new_tasked_day = year_value + "-" + month.value + "-" + day_value;
 
-    const newEvent = {
-      title,
-      location,
-      month_value,
-      day,
-      day_value,
-      year_value,
-      start_hr_val,
-      start_min_val,
-      start_ampm_val,
-      checked,
+    if (user?.userId === "") return;
+    try {
+      const userRef = doc(db, "users", user?.userId);
+      const eventRef = collection(userRef, "Tasks");
+      await addDoc(eventRef, {
+        title: title,
+        location: location,
+        month_value: month_value,
+        day: day,
+        day_value: day_value,
+        year_value: year_value,
+        start_hr_val: start_hr_val,
+        start_min_val: start_min_val,
+        start_ampm_val: start_ampm_val,
+        checked: checked,
+        new_tasked_day: new_tasked_day,
+      });
+      alert("Task added successfully!");
+    } catch (error) {
+      console.error("Error adding course: ", error);
+    }
+  }
+  useEffect(() => {
+    const fetchCourses = () => {
+      if (user?.userId) {
+        try {
+          const userRef = doc(db, "users", user.userId);
+          const eventsRef = collection(userRef, "Tasks");
+
+          // Set up a real-time listener with onSnapshot
+          const unsubscribe = onSnapshot(eventsRef, (snapshot) => {
+            const eventsList = snapshot.docs.map((doc) => ({
+              title: doc.data().title,
+              location: doc.data().location,
+              month_value: doc.data().month_value,
+              day: doc.data().day,
+              day_value: doc.data().day_value,
+              year_value: doc.data().year_value,
+              start_hr_val: doc.data().start_hr_val,
+              start_min_val: doc.data().start_min_val,
+              start_ampm_val: doc.data().start_ampm_val,
+              checked: doc.data().checked,
+            }));
+            const tasked_days = snapshot.docs.map((doc) => ({
+              new_tasked_day: doc.data().new_tasked_day,
+            }));
+
+            setEvents(eventsList);
+            set_tasked_day(tasked_days);
+          });
+
+          // Clean up the listener when the component unmounts
+          return unsubscribe;
+        } catch (error) {
+          console.error("Error fetching courses: ", error);
+        }
+      }
     };
 
-    setEvents((prevEvents) => [...prevEvents, newEvent]);
-    set_tasked_day((prevTaskedDay) => [...prevTaskedDay, new_tasked_day]);
-  }
+    const unsubscribe = fetchCourses();
+    return () => unsubscribe && unsubscribe(); 
+  }, []); 
+
+  useEffect(() => {
+    // Set marked dates when tasked_day is updated
+    if (tasked_day.length > 0) {
+      const newMarkedDates = {};
+      tasked_day.forEach((date) => {
+        newMarkedDates[date.new_tasked_day] = {
+          marked: true,
+          dotColor: "#075eec",
+        };
+      });
+      setMarkedDates(newMarkedDates);
+    }
+  }, [tasked_day]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -144,9 +212,13 @@ const App = ({ navigation }) => {
             textDisabledColor: "#d3d3d3",
             arrowColor: "#075eec",
           }}
-          markedDates={markedDates}
+          markedDates={{ ...markedDates, ...temp_selected_day}}
           onDayPress={(day) => {
             set_selected_day(day.day);
+            updatedMarkedDates = {
+              [day.dateString]: { selected: true, selectedColor: 'blue' }
+            };
+            set_temp_selected_day(updatedMarkedDates)
           }}
         />
         <View style={styles.eventsContainer}>
@@ -154,33 +226,59 @@ const App = ({ navigation }) => {
             <Text style={styles.sectionHeaderText}>Activities</Text>
           </View>
           <ScrollView style={styles.eventsList}>
-            {events.map((temp_event, index) => {
-              if (selected_day == parseFloat(temp_event.day_value)) {
-                return (
-                  <View key={index} style={styles.eventCard}>
-                    <TouchableOpacity onPress={() => toggleChecked(index)}>
-                      {temp_event.checked ? (
-                        <Feather name="check-circle" size={20} color="black" />
-                      ) : (
-                        <Feather name="circle" size={20} color="black" />
-                      )}
-                    </TouchableOpacity>
-                    <View style={styles.eventDetails}>
-                      <Text style={styles.eventTitle}>{temp_event.title}</Text>
-                      <View style={styles.eventInfo}>
-                        <Ionicons name="time-outline" size={15} color="black" />
-                        <Text>{temp_event.day} {temp_event.start_hr_val}:{temp_event.start_min_val} {temp_event.start_ampm_val}</Text>
-                      </View>
-                      <View style={styles.eventInfo}>
-                        <SimpleLineIcons name="location-pin" size={15} color="black" />
-                        <Text>{temp_event.location}</Text>
+            {events.filter(
+              (event) => selected_day === parseFloat(event.day_value)
+            ).length === 0 ? (
+              // Display "No task today" if there are no matching tasks
+              <Text style={styles.noTaskText}>No task today</Text>
+            ) : (
+              // Display tasks that match the selected day
+              events.map((temp_event, index) => {
+                if (selected_day === parseFloat(temp_event.day_value)) {
+                  return (
+                    <View key={index} style={styles.eventCard}>
+                      <TouchableOpacity onPress={() => toggleChecked(index)}>
+                        {temp_event.checked ? (
+                          <Feather
+                            name="check-circle"
+                            size={20}
+                            color="black"
+                          />
+                        ) : (
+                          <Feather name="circle" size={20} color="black" />
+                        )}
+                      </TouchableOpacity>
+                      <View style={styles.eventDetails}>
+                        <Text style={styles.eventTitle}>
+                          {temp_event.title}
+                        </Text>
+                        <View style={styles.eventInfo}>
+                          <Ionicons
+                            name="time-outline"
+                            size={15}
+                            color="black"
+                          />
+                          <Text>
+                            {temp_event.day} {temp_event.start_hr_val}:
+                            {temp_event.start_min_val}{" "}
+                            {temp_event.start_ampm_val}
+                          </Text>
+                        </View>
+                        <View style={styles.eventInfo}>
+                          <SimpleLineIcons
+                            name="location-pin"
+                            size={15}
+                            color="black"
+                          />
+                          <Text>{temp_event.location}</Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
-                );
-              }
-              return null;
-            })}
+                  );
+                }
+                return null;
+              })
+            )}
           </ScrollView>
         </View>
       </ScrollView>
@@ -303,7 +401,7 @@ const App = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   scrollView: {
     flex: 1,
@@ -319,78 +417,78 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   eventsList: {
     maxHeight: 300,
   },
   eventCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   eventDetails: {
     marginLeft: 10,
   },
   eventTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#075eec',
+    fontWeight: "bold",
+    color: "#075eec",
   },
   eventInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 5,
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 20,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+    width: "90%",
+    maxHeight: "80%",
   },
   closeButton: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#B2ACAC',
+    borderColor: "#B2ACAC",
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 10,
     marginBottom: 5,
   },
   dateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   timeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   dropdown: {
     height: 40,
-    borderColor: '#B2ACAC',
+    borderColor: "#B2ACAC",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 8,
@@ -398,28 +496,28 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   submitButton: {
-    backgroundColor: '#075eec',
+    backgroundColor: "#075eec",
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   submitButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   floatingButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     bottom: 20,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#075eec',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#075eec",
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
