@@ -1,23 +1,31 @@
+// ChatRoomHeader.js
+
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-export default function ChatRoomHeader({ user, router }) {
+export default function ChatRoomHeader({ user, router, isGroupChat, groupName }) {
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Ionicons name="chevron-back" size={hp(3.5)} color="#FFFFFF" />
       </TouchableOpacity>
       <View style={styles.userInfo}>
-        <Image 
-          source={user?.profileUrl}
-          style={styles.avatar}
-          contentFit="cover"
-          transition={1000}
-        />
-        <Text style={styles.username}>{user?.username}</Text>
+        {isGroupChat ? (
+          <View style={styles.groupAvatar}>
+            <FontAwesome name="users" size={hp(2.5)} color="#FFFFFF" />
+          </View>
+        ) : (
+          <Image
+            source={user?.profileUrl}
+            style={styles.avatar}
+            contentFit="cover"
+            transition={1000}
+          />
+        )}
+        <Text style={styles.username}>{isGroupChat ? groupName : user?.username}</Text>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity style={styles.actionButton}>
@@ -53,6 +61,15 @@ const styles = StyleSheet.create({
     width: hp(5),
     height: hp(5),
     borderRadius: hp(2.5),
+    marginRight: wp(3),
+  },
+  groupAvatar: {
+    width: hp(5),
+    height: hp(5),
+    borderRadius: hp(2.5),
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: wp(3),
   },
   username: {

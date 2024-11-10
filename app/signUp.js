@@ -16,16 +16,15 @@ export default function SignUp() {
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const usernameRef = useRef("");
-    const profileRef = useRef("");
 
     const handleRegister = async ()=>{
-        if(!emailRef.current || !passwordRef.current || !usernameRef.current || !profileRef.current){
+        if(!emailRef.current || !passwordRef.current || !usernameRef.current){
             Alert.alert('Sign Up', "Please fill all the fields!");
             return;
         }
         setLoading(true);
 
-        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, profileRef.current);
+        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, null);
         setLoading(false);
 
         console.log('got result: ', response);
@@ -79,18 +78,6 @@ export default function SignUp() {
                         placeholderTextColor={'gray'}
                     />
                 </View>
-
-                <View style={{height: hp(7)}} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-xl">
-                    <Feather name="image" size={hp(2.7)} color="gray" />
-                    <TextInput
-                        onChangeText={value=> profileRef.current=value}
-                        style={{fontSize: hp(2)}}
-                        className="flex-1 font-semibold text-neutral-700"
-                        placeholder='Profile url'
-                        placeholderTextColor={'gray'}
-                    />
-                </View>
-                    
 
                 {/* submit button */}
 

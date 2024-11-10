@@ -31,7 +31,13 @@ export const AuthContextProvider = ({children})=>{
 
         if(docSnap.exists()){
             let data = docSnap.data();
-            setUser({...user, username: data.username, profileUrl: data.profileUrl, userId: data.userId})
+            setUser((prevUser) => ({
+                ...prevUser,
+                username: data.username,
+                profileUrl: data.profileUrl,
+                userId: data.userId,
+              }));
+              
         }
     }
 
@@ -61,10 +67,10 @@ export const AuthContextProvider = ({children})=>{
 
             // setUser(response?.user);
             // setIsAuthenticated(true);
-
+            const defaultProfileUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png"
             await setDoc(doc(db, "users", response?.user?.uid),{
                 username, 
-                profileUrl,
+                profileUrl: defaultProfileUrl,
                 userId: response?.user?.uid
             });
             return {success: true, data: response?.user};

@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import HomeHeader from "../../components/HomeHeader";
 
-
 const QuickExam = () => {
   const [inputText, setInputText] = useState('');
   const [questions, setQuestions] = useState([]);
@@ -18,6 +17,7 @@ const QuickExam = () => {
   const [error, setError] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [questionCount, setQuestionCount] = useState(5);
 
   useEffect(() => {
     console.log('questions state updated:', questions);
@@ -43,7 +43,7 @@ const QuickExam = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            prompt: `Generate 5 multiple choice questions based on this text: "${inputText}"
+            prompt: `Generate ${questionCount} multiple choice questions based on this text: "${inputText}"
             
 Format EXACTLY like this example:
 1. [Question text here]
@@ -80,17 +80,13 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
     }
   };
 
-// And replace the parseGPTResponse function with this simpler version:
-
-const parseGPTResponse = (content) => {
+  const parseGPTResponse = (content) => {
     const questions = [];
     let currentQuestion = null;
 
-    // Split content into lines and remove empty lines
     const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
     
     for (const line of lines) {
-        // Question starts with a number followed by a dot
         if (/^\d+\./.test(line)) {
             if (currentQuestion) {
                 questions.push(currentQuestion);
@@ -101,7 +97,6 @@ const parseGPTResponse = (content) => {
                 correct_answer: null
             };
         }
-        // Option line starts with A) B) C) D)
         else if (/^[A-D]\)/.test(line)) {
             if (currentQuestion) {
                 const letter = line[0];
@@ -112,7 +107,6 @@ const parseGPTResponse = (content) => {
                 });
             }
         }
-        // Answer line
         else if (/^Answer:\s*[A-D]$/i.test(line)) {
             if (currentQuestion) {
                 currentQuestion.correct_answer = line.slice(-1).toUpperCase();
@@ -120,16 +114,13 @@ const parseGPTResponse = (content) => {
         }
     }
 
-    // Don't forget the last question
     if (currentQuestion && currentQuestion.options.length > 0) {
         questions.push(currentQuestion);
     }
-
-    // Debug log
-    console.log('Parsed questions:', questions);
     
+    console.log('Parsed questions:', questions);
     return questions;
-};
+  };
 
   const handleSelectOption = (questionIndex, optionLetter) => {
     if (!isSubmitted) {
@@ -158,7 +149,6 @@ const parseGPTResponse = (content) => {
     });
     return correctCount;
   };
-
   const renderOption = (option, questionIndex, question) => {
     const isSelected = selectedAnswers[questionIndex] === option.letter;
     const isCorrect = question.correct_answer === option.letter;
@@ -196,6 +186,34 @@ const parseGPTResponse = (content) => {
           <Text style={styles.title}>Quick Exam Generator</Text>
 
           <View style={styles.inputContainer}>
+            {/* Question Count Selector */}
+            <View style={styles.questionCountContainer}>
+              <Text style={styles.questionCountLabel}>
+                Number of Questions: {questionCount}
+              </Text>
+              <View style={styles.questionCountButtonsContainer}>
+                {[3, 5, 7, 10].map((count) => (
+                  <TouchableOpacity
+                    key={count}
+                    style={[
+                      styles.questionCountButton,
+                      questionCount === count && styles.questionCountButtonActive,
+                    ]}
+                    onPress={() => setQuestionCount(count)}
+                  >
+                    <Text
+                      style={[
+                        styles.questionCountButtonText,
+                        questionCount === count && styles.questionCountButtonTextActive,
+                      ]}
+                    >
+                      {count}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             <TextInput
               multiline
               numberOfLines={6}
@@ -222,10 +240,10 @@ const parseGPTResponse = (content) => {
               {loading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator color="#fff" />
-                  <Text style={styles.buttonText}>Generating...</Text>
+                  <Text style={styles.buttonText}>Generating {questionCount} Questions...</Text>
                 </View>
               ) : (
-                <Text style={styles.buttonText}>Generate Questions</Text>
+                <Text style={styles.buttonText}>Generate {questionCount} Questions</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -306,6 +324,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  questionCountContainer: {
+    marginBottom: 16,
+  },
+  questionCountLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 8,
+  },
+  questionCountButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  questionCountButton: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  questionCountButtonActive: {
+    backgroundColor: '#2196f3',
+    borderColor: '#2196f3',
+  },
+  questionCountButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  questionCountButtonTextActive: {
+    color: '#fff',
+    fontWeight: '500',
   },
   title: {
     fontSize: 24,
