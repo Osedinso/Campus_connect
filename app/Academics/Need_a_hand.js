@@ -1,14 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, SafeAreaView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  ScrollView,
+  Alert,
+  SafeAreaView,
+  ActivityIndicator,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'firebase/storage';
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore';
 import { storage, db } from '../../firebaseConfig';
 import { useAuth } from '../../context/authContext';
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign, Feather } from '@expo/vector-icons';
-import HomeHeader from "../../components/HomeHeader";
-import TimeAgo from 'timeago.js';
+import HomeHeader from '../../components/HomeHeader';
+import { format } from 'timeago.js';
 
 const Need_a_hand = () => {
   const [image, setImage] = useState(null);
@@ -44,7 +68,10 @@ const Need_a_hand = () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant permission to access your photos');
+        Alert.alert(
+          'Permission needed',
+          'Please grant permission to access your photos'
+        );
         return;
       }
 
@@ -68,10 +95,10 @@ const Need_a_hand = () => {
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
-      
+
       const fileName = `help_requests/${user.userId}_${Date.now()}.jpg`;
       const storageRef = ref(storage, fileName);
-      
+
       await uploadBytes(storageRef, blob);
       return await getDownloadURL(storageRef);
     } catch (error) {
@@ -89,7 +116,7 @@ const Need_a_hand = () => {
     setLoading(true);
     try {
       const imageUrl = await uploadImage(image.uri);
-      
+
       await addDoc(collection(db, 'help_requests'), {
         userId: user.userId,
         username: user.username,
@@ -98,19 +125,15 @@ const Need_a_hand = () => {
         description: description.trim(),
         timestamp: serverTimestamp(),
         status: 'pending',
-        comments: []
+        comments: [],
       });
 
-      Alert.alert(
-        'Success',
-        'Your request has been posted!',
-        [
-          {
-            text: 'View My Posts',
-            onPress: () => setShowMyPosts(true)
-          }
-        ]
-      );
+      Alert.alert('Success', 'Your request has been posted!', [
+        {
+          text: 'View My Posts',
+          onPress: () => setShowMyPosts(true),
+        },
+      ]);
 
       setImage(null);
       setDescription('');
@@ -127,7 +150,7 @@ const Need_a_hand = () => {
       // Delete image from storage
       if (post.imageUrl) {
         const imageRef = ref(storage, post.imageUrl);
-        await deleteObject(imageRef).catch(error => {
+        await deleteObject(imageRef).catch((error) => {
           console.log('Error deleting image:', error);
         });
       }
@@ -149,7 +172,9 @@ const Need_a_hand = () => {
           {/* Header Section */}
           <View className="mb-8">
             <Text className="text-3xl font-bold text-gray-800">Need a Hand?</Text>
-            <Text className="text-gray-500 mt-2">Share your question and get help from others</Text>
+            <Text className="text-gray-500 mt-2">
+              Share your question and get help from others
+            </Text>
           </View>
 
           {/* Toggle Button */}
@@ -157,10 +182,10 @@ const Need_a_hand = () => {
             onPress={() => setShowMyPosts(!showMyPosts)}
             className="mb-6 flex-row items-center justify-center bg-blue-100 p-3 rounded-xl"
           >
-            <Feather 
-              name={showMyPosts ? "edit" : "list"} 
-              size={20} 
-              color="#3b82f6" 
+            <Feather
+              name={showMyPosts ? 'edit' : 'list'}
+              size={20}
+              color="#3b82f6"
               style={{ marginRight: 8 }}
             />
             <Text className="text-blue-600 font-medium">
@@ -171,8 +196,10 @@ const Need_a_hand = () => {
           {!showMyPosts ? (
             // Create Post Form
             <View className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-              <Text className="text-lg font-semibold mb-3 text-gray-700">Upload Image</Text>
-              <TouchableOpacity 
+              <Text className="text-lg font-semibold mb-3 text-gray-700">
+                Upload Image
+              </Text>
+              <TouchableOpacity
                 onPress={pickImage}
                 className={`border-2 border-dashed rounded-xl p-4 mb-2 items-center justify-center ${
                   image ? 'border-blue-300 bg-blue-50' : 'border-gray-300'
@@ -181,8 +208,8 @@ const Need_a_hand = () => {
               >
                 {image ? (
                   <View className="w-full h-full relative">
-                    <Image 
-                      source={{ uri: image.uri }} 
+                    <Image
+                      source={{ uri: image.uri }}
                       className="w-full h-full rounded-lg"
                       resizeMode="cover"
                     />
@@ -195,14 +222,20 @@ const Need_a_hand = () => {
                     <View className="bg-blue-100 rounded-full p-4 mb-3">
                       <AntDesign name="camerao" size={40} color="#3b82f6" />
                     </View>
-                    <Text className="text-gray-600 font-medium">Tap to add a photo</Text>
-                    <Text className="text-gray-400 text-sm mt-1">Upload a clear image of your problem</Text>
+                    <Text className="text-gray-600 font-medium">
+                      Tap to add a photo
+                    </Text>
+                    <Text className="text-gray-400 text-sm mt-1">
+                      Upload a clear image of your problem
+                    </Text>
                   </View>
                 )}
               </TouchableOpacity>
 
               <View className="mt-6">
-                <Text className="text-lg font-semibold mb-3 text-gray-700">Description</Text>
+                <Text className="text-lg font-semibold mb-3 text-gray-700">
+                  Description
+                </Text>
                 <TextInput
                   multiline
                   numberOfLines={4}
@@ -218,7 +251,9 @@ const Need_a_hand = () => {
               <TouchableOpacity
                 onPress={handleSubmit}
                 disabled={loading}
-                className={`mt-6 py-4 rounded-xl ${loading ? 'bg-gray-400' : 'bg-blue-500'}`}
+                className={`mt-6 py-4 rounded-xl ${
+                  loading ? 'bg-gray-400' : 'bg-blue-500'
+                }`}
               >
                 {loading ? (
                   <View className="flex-row justify-center items-center">
@@ -226,7 +261,9 @@ const Need_a_hand = () => {
                     <Text className="text-white ml-2 font-semibold">Posting...</Text>
                   </View>
                 ) : (
-                  <Text className="text-white text-center font-semibold">Ask for Help</Text>
+                  <Text className="text-white text-center font-semibold">
+                    Ask for Help
+                  </Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -243,7 +280,10 @@ const Need_a_hand = () => {
                 </View>
               ) : (
                 myPosts.map((post) => (
-                  <View key={post.id} className="bg-white rounded-xl shadow-sm mb-4 overflow-hidden">
+                  <View
+                    key={post.id}
+                    className="bg-white rounded-xl shadow-sm mb-4 overflow-hidden"
+                  >
                     <Image
                       source={{ uri: post.imageUrl }}
                       className="w-full h-48"
@@ -255,23 +295,27 @@ const Need_a_hand = () => {
                       </Text>
                       <View className="flex-row justify-between items-center">
                         <Text className="text-gray-500 text-sm">
-                          <TimeAgo time={post.timestamp?.toDate()} />
+                          {format(post.timestamp?.toDate())}
                         </Text>
                         <View className="flex-row">
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             onPress={() => navigation.navigate('Help_a_Friend')}
                             className="mr-3 bg-blue-100 p-2 rounded-full"
                           >
                             <Feather name="message-circle" size={20} color="#3b82f6" />
                           </TouchableOpacity>
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             onPress={() => {
                               Alert.alert(
                                 'Delete Post',
                                 'Are you sure you want to delete this post?',
                                 [
                                   { text: 'Cancel', style: 'cancel' },
-                                  { text: 'Delete', onPress: () => deletePost(post), style: 'destructive' }
+                                  {
+                                    text: 'Delete',
+                                    onPress: () => deletePost(post),
+                                    style: 'destructive',
+                                  },
                                 ]
                               );
                             }}
@@ -283,7 +327,8 @@ const Need_a_hand = () => {
                       </View>
                       {post.comments?.length > 0 && (
                         <Text className="text-blue-500 mt-2">
-                          {post.comments.length} {post.comments.length === 1 ? 'response' : 'responses'}
+                          {post.comments.length}{' '}
+                          {post.comments.length === 1 ? 'response' : 'responses'}
                         </Text>
                       )}
                     </View>
