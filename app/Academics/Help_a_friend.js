@@ -9,10 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  SafeAreaView,
   StyleSheet,
-  Platform,
-  StatusBar,
   ActivityIndicator,
 } from 'react-native';
 import {
@@ -99,7 +96,9 @@ const Help_a_friend = () => {
             style={styles.userImage}
           />
           <View style={styles.userInfoTextContainer}>
-            <Text style={styles.usernameText}>{item.username || 'Anonymous'}</Text>
+            <Text style={styles.usernameText}>
+              {item.username || 'Anonymous'}
+            </Text>
             {item.timestamp && (
               <Text style={styles.timestampText}>
                 {format(item.timestamp?.toDate())}
@@ -160,7 +159,7 @@ const Help_a_friend = () => {
                 onPress={() => setSelectedRequest(item.id)}
                 style={styles.addCommentButton}
               >
-                <Feather name="message-circle" size={20} color="#3b82f6" />
+                <Feather name="message-circle" size={20} color="#3B82F6" />
                 <Text style={styles.addCommentButtonText}>Add Comment</Text>
               </TouchableOpacity>
             )
@@ -174,17 +173,19 @@ const Help_a_friend = () => {
 
   if (!user) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <HomeHeader />
         <View style={styles.centeredContent}>
-          <Text style={styles.signInText}>Please sign in to view help requests</Text>
+          <Text style={styles.signInText}>
+            Please sign in to view help requests
+          </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <HomeHeader />
       <FlatList
         data={requests}
@@ -194,17 +195,19 @@ const Help_a_friend = () => {
         ListHeaderComponent={
           <View style={styles.listHeader}>
             <Text style={styles.pageTitle}>Help Requests</Text>
-            <Text style={styles.pageSubtitle}>See how you can help others</Text>
+            <Text style={styles.pageSubtitle}>
+              See how you can help others
+            </Text>
           </View>
         }
         ListEmptyComponent={
           loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#3b82f6" />
+              <ActivityIndicator size="large" color="#3B82F6" />
             </View>
           ) : (
             <View style={styles.emptyContainer}>
-              <Feather name="inbox" size={48} color="#9ca3af" />
+              <Feather name="inbox" size={48} color="#9CA3AF" />
               <Text style={styles.emptyText}>
                 No help requests yet.{'\n'}Check back later!
               </Text>
@@ -212,7 +215,7 @@ const Help_a_friend = () => {
           )
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -246,16 +249,20 @@ const styles = StyleSheet.create({
   signInText: {
     fontSize: 18,
     color: '#4B5563', // Tailwind gray-600
+    textAlign: 'center',
   },
   // Post Styles
   postContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+    // Shadow for iOS
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    marginBottom: 16,
-    overflow: 'hidden',
+    // Elevation for Android
+    elevation: 3,
   },
   userInfoContainer: {
     flexDirection: 'row',
@@ -281,6 +288,7 @@ const styles = StyleSheet.create({
   },
   timestampText: {
     color: '#6B7280',
+    fontSize: 12,
   },
   postImage: {
     width: '100%',
@@ -358,10 +366,12 @@ const styles = StyleSheet.create({
     color: '#3B82F6',
     marginLeft: 8,
     fontWeight: '500',
+    fontSize: 16,
   },
   signInToCommentText: {
     color: '#6B7280',
     marginTop: 8,
+    fontSize: 14,
   },
   loadingContainer: {
     flex: 1,

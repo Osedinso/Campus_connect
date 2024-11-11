@@ -1,3 +1,5 @@
+// screens/Need_a_hand.js
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,6 +11,7 @@ import {
   Alert,
   SafeAreaView,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -51,10 +54,10 @@ const Need_a_hand = () => {
       );
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const posts = [];
-        snapshot.forEach((doc) => {
-          posts.push({ id: doc.id, ...doc.data() });
-        });
+        const posts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         // Sort posts by timestamp in descending order
         posts.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate());
         setMyPosts(posts);
@@ -66,7 +69,8 @@ const Need_a_hand = () => {
 
   const pickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
           'Permission needed',
@@ -165,14 +169,14 @@ const Need_a_hand = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View style={styles.container}>
       <HomeHeader />
-      <ScrollView className="flex-1">
-        <View className="p-6">
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.innerContainer}>
           {/* Header Section */}
-          <View className="mb-8">
-            <Text className="text-3xl font-bold text-gray-800">Need a Hand?</Text>
-            <Text className="text-gray-500 mt-2">
+          <View style={styles.headerSection}>
+            <Text style={styles.title}>Need a Hand?</Text>
+            <Text style={styles.subtitle}>
               Share your question and get help from others
             </Text>
           </View>
@@ -180,129 +184,126 @@ const Need_a_hand = () => {
           {/* Toggle Button */}
           <TouchableOpacity
             onPress={() => setShowMyPosts(!showMyPosts)}
-            className="mb-6 flex-row items-center justify-center bg-blue-100 p-3 rounded-xl"
+            style={styles.toggleButton}
           >
             <Feather
               name={showMyPosts ? 'edit' : 'list'}
               size={20}
-              color="#3b82f6"
+              color="#3B82F6"
               style={{ marginRight: 8 }}
             />
-            <Text className="text-blue-600 font-medium">
+            <Text style={styles.toggleButtonText}>
               {showMyPosts ? 'Create New Post' : 'View My Posts'}
             </Text>
           </TouchableOpacity>
 
           {!showMyPosts ? (
             // Create Post Form
-            <View className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-              <Text className="text-lg font-semibold mb-3 text-gray-700">
-                Upload Image
-              </Text>
+            <View style={styles.formContainer}>
+              <Text style={styles.sectionTitle}>Upload Image</Text>
               <TouchableOpacity
                 onPress={pickImage}
-                className={`border-2 border-dashed rounded-xl p-4 mb-2 items-center justify-center ${
-                  image ? 'border-blue-300 bg-blue-50' : 'border-gray-300'
-                }`}
-                style={{ height: 250 }}
+                style={[
+                  styles.imagePicker,
+                  image ? styles.imageSelected : styles.imageNotSelected,
+                ]}
               >
                 {image ? (
-                  <View className="w-full h-full relative">
+                  <View style={styles.imageContainer}>
                     <Image
                       source={{ uri: image.uri }}
-                      className="w-full h-full rounded-lg"
+                      style={styles.selectedImage}
                       resizeMode="cover"
                     />
-                    <View className="absolute bottom-2 right-2 bg-black/50 rounded-full p-2">
+                    <View style={styles.editIcon}>
                       <Feather name="edit-2" size={20} color="white" />
                     </View>
                   </View>
                 ) : (
-                  <View className="items-center">
-                    <View className="bg-blue-100 rounded-full p-4 mb-3">
-                      <AntDesign name="camerao" size={40} color="#3b82f6" />
+                  <View style={styles.imagePlaceholder}>
+                    <View style={styles.cameraIconContainer}>
+                      <AntDesign name="camerao" size={40} color="#3B82F6" />
                     </View>
-                    <Text className="text-gray-600 font-medium">
+                    <Text style={styles.imagePlaceholderText}>
                       Tap to add a photo
                     </Text>
-                    <Text className="text-gray-400 text-sm mt-1">
+                    <Text style={styles.imagePlaceholderSubText}>
                       Upload a clear image of your problem
                     </Text>
                   </View>
                 )}
               </TouchableOpacity>
 
-              <View className="mt-6">
-                <Text className="text-lg font-semibold mb-3 text-gray-700">
-                  Description
-                </Text>
+              <View style={styles.descriptionContainer}>
+                <Text style={styles.sectionTitle}>Description</Text>
                 <TextInput
                   multiline
                   numberOfLines={4}
                   value={description}
                   onChangeText={setDescription}
                   placeholder="Explain what you need help with..."
-                  className="bg-gray-50 rounded-xl p-4 text-base text-gray-700"
+                  style={styles.descriptionInput}
                   textAlignVertical="top"
-                  style={{ minHeight: 100 }}
                 />
               </View>
 
               <TouchableOpacity
                 onPress={handleSubmit}
                 disabled={loading}
-                className={`mt-6 py-4 rounded-xl ${
-                  loading ? 'bg-gray-400' : 'bg-blue-500'
-                }`}
+                style={[
+                  styles.submitButton,
+                  loading ? styles.buttonDisabled : styles.buttonEnabled,
+                ]}
               >
                 {loading ? (
-                  <View className="flex-row justify-center items-center">
+                  <View style={styles.buttonContent}>
                     <ActivityIndicator color="white" />
-                    <Text className="text-white ml-2 font-semibold">Posting...</Text>
+                    <Text style={styles.buttonText}>Posting...</Text>
                   </View>
                 ) : (
-                  <Text className="text-white text-center font-semibold">
-                    Ask for Help
-                  </Text>
+                  <Text style={styles.buttonText}>Ask for Help</Text>
                 )}
               </TouchableOpacity>
             </View>
           ) : (
             // My Posts List
             <View>
-              <Text className="text-xl font-bold mb-4 text-gray-800">My Posts</Text>
+              <Text style={styles.myPostsTitle}>My Posts</Text>
               {myPosts.length === 0 ? (
-                <View className="bg-white rounded-xl p-6 items-center">
-                  <Feather name="inbox" size={48} color="#9ca3af" />
-                  <Text className="text-gray-500 mt-4 text-center">
+                <View style={styles.noPostsContainer}>
+                  <Feather name="inbox" size={48} color="#9CA3AF" />
+                  <Text style={styles.noPostsText}>
                     You haven't created any help requests yet
                   </Text>
                 </View>
               ) : (
                 myPosts.map((post) => (
-                  <View
-                    key={post.id}
-                    className="bg-white rounded-xl shadow-sm mb-4 overflow-hidden"
-                  >
+                  <View key={post.id} style={styles.postContainer}>
                     <Image
                       source={{ uri: post.imageUrl }}
-                      className="w-full h-48"
+                      style={styles.postImage}
                       resizeMode="cover"
                     />
-                    <View className="p-4">
-                      <Text className="text-gray-700 font-medium mb-2">
+                    <View style={styles.postContent}>
+                      <Text style={styles.postDescription}>
                         {post.description}
                       </Text>
-                      <View className="flex-row justify-between items-center">
-                        <Text className="text-gray-500 text-sm">
-                          {format(post.timestamp?.toDate())}
+                      <View style={styles.postFooter}>
+                        <Text style={styles.postTimestamp}>
+                          {post.timestamp ? format(post.timestamp.toDate()) : ''}
                         </Text>
-                        <View className="flex-row">
+                        <View style={styles.postActions}>
                           <TouchableOpacity
-                            onPress={() => navigation.navigate('Help_a_Friend')}
-                            className="mr-3 bg-blue-100 p-2 rounded-full"
+                            onPress={() =>
+                              navigation.navigate('Help_a_Friend')
+                            }
+                            style={styles.postActionButton}
                           >
-                            <Feather name="message-circle" size={20} color="#3b82f6" />
+                            <Feather
+                              name="message-circle"
+                              size={20}
+                              color="#3B82F6"
+                            />
                           </TouchableOpacity>
                           <TouchableOpacity
                             onPress={() => {
@@ -319,16 +320,22 @@ const Need_a_hand = () => {
                                 ]
                               );
                             }}
-                            className="bg-red-100 p-2 rounded-full"
+                            style={styles.postActionButton}
                           >
-                            <Feather name="trash-2" size={20} color="#ef4444" />
+                            <Feather
+                              name="trash-2"
+                              size={20}
+                              color="#EF4444"
+                            />
                           </TouchableOpacity>
                         </View>
                       </View>
                       {post.comments?.length > 0 && (
-                        <Text className="text-blue-500 mt-2">
+                        <Text style={styles.postComments}>
                           {post.comments.length}{' '}
-                          {post.comments.length === 1 ? 'response' : 'responses'}
+                          {post.comments.length === 1
+                            ? 'response'
+                            : 'responses'}
                         </Text>
                       )}
                     </View>
@@ -339,8 +346,229 @@ const Need_a_hand = () => {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F3F4F6', // Tailwind gray-100
+  },
+  contentContainer: {
+    paddingBottom: 16,
+  },
+  innerContainer: {
+    padding: 16,
+  },
+  headerSection: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1F2937', // Tailwind gray-800
+    marginBottom: 8,
+  },
+  subtitle: {
+    color: '#6B7280', // Tailwind gray-500
+    fontSize: 16,
+  },
+  toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#DBEAFE', // Tailwind blue-100
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
+  toggleButtonText: {
+    color: '#3B82F6', // Tailwind blue-500
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  formContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151', // Tailwind gray-700
+    marginBottom: 12,
+  },
+  imagePicker: {
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 250,
+    marginBottom: 16,
+  },
+  imageNotSelected: {
+    borderColor: '#D1D5DB', // Tailwind gray-300
+  },
+  imageSelected: {
+    borderColor: '#93C5FD', // Tailwind blue-300
+    backgroundColor: '#DBEAFE', // Tailwind blue-100
+  },
+  imageContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  selectedImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  editIcon: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 20,
+    padding: 6,
+  },
+  imagePlaceholder: {
+    alignItems: 'center',
+  },
+  cameraIconContainer: {
+    backgroundColor: '#DBEAFE', // Tailwind blue-100
+    borderRadius: 50,
+    padding: 16,
+    marginBottom: 12,
+  },
+  imagePlaceholderText: {
+    color: '#4B5563', // Tailwind gray-600
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  imagePlaceholderSubText: {
+    color: '#9CA3AF', // Tailwind gray-400
+    fontSize: 14,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  descriptionContainer: {
+    marginTop: 16,
+  },
+  descriptionInput: {
+    backgroundColor: '#F9FAFB', // Tailwind gray-50
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    color: '#374151', // Tailwind gray-700
+    minHeight: 100,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#D1D5DB', // Tailwind gray-300
+  },
+  submitButton: {
+    marginTop: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  buttonEnabled: {
+    backgroundColor: '#3B82F6', // Tailwind blue-500
+  },
+  buttonDisabled: {
+    backgroundColor: '#9CA3AF', // Tailwind gray-400
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  myPostsTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1F2937', // Tailwind gray-800
+    marginBottom: 16,
+  },
+  noPostsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 24,
+    alignItems: 'center',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 3,
+  },
+  noPostsText: {
+    color: '#6B7280', // Tailwind gray-500
+    fontSize: 16,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  postContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 3,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+  },
+  postContent: {
+    padding: 16,
+  },
+  postDescription: {
+    color: '#374151', // Tailwind gray-700
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 12,
+  },
+  postFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  postTimestamp: {
+    color: '#6B7280', // Tailwind gray-500
+    fontSize: 14,
+  },
+  postActions: {
+    flexDirection: 'row',
+  },
+  postActionButton: {
+    marginLeft: 8,
+    padding: 8,
+    borderRadius: 50,
+    backgroundColor: '#F3F4F6', // Tailwind gray-100
+  },
+  postComments: {
+    color: '#3B82F6', // Tailwind blue-500
+    marginTop: 8,
+    fontSize: 14,
+  },
+});
 
 export default Need_a_hand;
