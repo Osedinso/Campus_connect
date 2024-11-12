@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,9 +9,19 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import React, { useState, useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
+import { db } from "../../firebaseConfig";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  deleteDoc,
+} from "firebase/firestore";
+import { useAuth } from "../../context/authContext";
 
 const Activities = ({ navigation }) => {
   const [events, setEvents] = useState([
@@ -32,9 +41,10 @@ const Activities = ({ navigation }) => {
       start_ampm_val: "PM",
       end_hr_val: "8",
       end_min_val: "00",
-      end_ampm_val: "PM"
-    }
+      end_ampm_val: "PM",
+    },
   ]);
+  const { user } = useAuth();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [title, set_title] = useState("");
@@ -69,8 +79,8 @@ const Activities = ({ navigation }) => {
   ];
 
   const daysOfMonth = Array.from({ length: 31 }, (_, i) => ({
-    label: String(i + 1).padStart(2, '0'),
-    value: String(i + 1).padStart(2, '0')
+    label: String(i + 1).padStart(2, "0"),
+    value: String(i + 1).padStart(2, "0"),
   }));
 
   const years = [
@@ -84,13 +94,13 @@ const Activities = ({ navigation }) => {
   ];
 
   const minutes = Array.from({ length: 12 }, (_, i) => ({
-    label: String(i * 5).padStart(2, '0'),
-    value: String(i * 5).padStart(2, '0')
+    label: String(i * 5).padStart(2, "0"),
+    value: String(i * 5).padStart(2, "0"),
   }));
 
   const hours = Array.from({ length: 12 }, (_, i) => ({
-    label: String(i + 1).padStart(2, '0'),
-    value: String(i + 1).padStart(2, '0')
+    label: String(i + 1).padStart(2, "0"),
+    value: String(i + 1).padStart(2, "0"),
   }));
 
   const amPm = [
@@ -104,33 +114,94 @@ const Activities = ({ navigation }) => {
     return daysOfWeek[date.getDay()];
   }
 
-  function submit_form() {
+  async function submit_form() {
     const month = months.find((m) => m.label === month_value);
     const day = find_day(
       parseInt(day_value),
       parseInt(month.value),
       parseInt(year_value)
     );
-    const newEvent = {
-      title,
-      description,
-      location,
-      host,
-      fee,
-      giveaway,
-      month_value,
-      day,
-      day_value,
-      year_value,
-      start_hr_val,
-      start_min_val,
-      start_ampm_val,
-      end_hr_val,
-      end_min_val,
-      end_ampm_val,
+    if (user?.userId === "") return;
+
+    try {
+      const ActivitiesRef = collection(db, "Activities"); // Reference the Activities collection
+
+      await addDoc(ActivitiesRef, {
+        userID: user.userId,
+        title: title,
+        description: description,
+        location: location,
+        host: host,
+        fee: fee,
+        giveaway: giveaway,
+        month_value: month_value,
+        day: day,
+        day_value: day_value,
+        year_value: year_value,
+        start_hr_val: start_hr_val,
+        start_min_val: start_min_val,
+        start_ampm_val: start_ampm_val,
+        end_hr_val: end_hr_val,
+        end_min_val: end_min_val,
+        end_ampm_val: end_ampm_val,
+      });
+      alert("Course added successfully!");
+    } catch (error) {
+      console.error("Error adding course: ", error);
+    }
+  }
+
+  useEffect(() => {
+    const fetchCourses = () => {
+      try {
+        const ActivitiesRef = collection(db, "Activities"); // Reference the user document
+
+        // Set up a real-time listener with onSnapshot
+        const unsubscribe = onSnapshot(ActivitiesRef, (snapshot) => {
+          const ActivitiesList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            userID: doc.data().userID,
+            title: doc.data().title,
+            description: doc.data().description,
+            location: doc.data().location,
+            host: doc.data().host,
+            fee: doc.data().fee,
+            giveaway: doc.data().giveaway,
+            month_value: doc.data().month_value,
+            day: doc.data().day,
+            day_value: doc.data().day_value,
+            year_value: doc.data().year_value,
+            start_hr_val: doc.data().start_hr_val,
+            start_min_val: doc.data().start_min_val,
+            start_ampm_val: doc.data().start_ampm_val,
+            end_hr_val: doc.data().end_hr_val,
+            end_min_val: doc.data().end_min_val,
+            end_ampm_val: doc.data().end_ampm_val,
+          }));
+          setEvents(ActivitiesList);
+        });
+
+        // Clean up the listener when the component unmounts
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching courses: ", error);
+      }
     };
 
-    setEvents((prevEvents) => [...prevEvents, newEvent]);
+    const unsubscribe = fetchCourses();
+    return () => unsubscribe && unsubscribe(); // Clean up the listener
+  });
+  async function delete_event(curr_user, own_user, eventId) {
+    if (curr_user == own_user) {
+      try {
+        const eventRef = doc(db, "Activities", eventId);
+        await deleteDoc(eventRef);
+        console.log("Event deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting event: ", error);
+      }
+    }
+    
   }
 
   return (
@@ -154,41 +225,69 @@ const Activities = ({ navigation }) => {
           {events.map((temp_event, index) => (
             <View key={index} style={styles.eventCard}>
               <View style={styles.eventDetails}>
-                <Text style={styles.eventTitle}>{temp_event.title}</Text>
+                <View className="flex-row w-full h-8 items-center justify-between">
+                  <Text style={styles.eventTitle}>{temp_event.title}</Text>
+                  {
+                    temp_event.userID === user.userId && (
+                      <TouchableOpacity
+                        onPress={() =>
+                          delete_event(
+                            temp_event.userID,
+                            user.userId,
+                            temp_event.id
+                          )
+                        }
+                      >
+                        <Ionicons name="trash-outline" size={15} color="black" />
+                      </TouchableOpacity>
+                    )
+                  }
+                  
+                </View>
+
                 <Text style={styles.eventInfo}>
                   <AntDesign name="calendar" size={15} color="black" />{" "}
-                  {temp_event.day} {temp_event.month_value} {temp_event.day_value} {temp_event.year_value}
+                  {temp_event.day} {temp_event.month_value}{" "}
+                  {temp_event.day_value} {temp_event.year_value}
                 </Text>
                 <Text style={styles.eventInfo}>
                   <Ionicons name="time-outline" size={15} color="black" />{" "}
-                  {temp_event.start_hr_val}:{temp_event.start_min_val} {temp_event.start_ampm_val} - {temp_event.end_hr_val}:{temp_event.end_min_val} {temp_event.end_ampm_val}
+                  {temp_event.start_hr_val}:{temp_event.start_min_val}{" "}
+                  {temp_event.start_ampm_val} - {temp_event.end_hr_val}:
+                  {temp_event.end_min_val} {temp_event.end_ampm_val}
                 </Text>
                 <Text style={styles.eventInfo}>
-                  <SimpleLineIcons name="location-pin" size={15} color="black" />{" "}
+                  <SimpleLineIcons
+                    name="location-pin"
+                    size={15}
+                    color="black"
+                  />{" "}
                   {temp_event.location}
                 </Text>
                 <Text style={styles.eventInfo}>10 Attendees</Text>
               </View>
               <TouchableOpacity
                 style={styles.viewMoreButton}
-                onPress={() => navigation.navigate("ext_activites", {
-                  cur_title: temp_event.title,
-                  cur_host: temp_event.host,
-                  cur_location: temp_event.location,
-                  cur_day: temp_event.day,
-                  cur_date: temp_event.day_value,
-                  cur_month: temp_event.month_value,
-                  cur_year: temp_event.year_value,
-                  cur_start_hr: temp_event.start_hr_val,
-                  cur_start_min: temp_event.start_min_val,
-                  cur_start_amPm: temp_event.start_ampm_val,
-                  cur_end_hr: temp_event.end_hr_val,
-                  cur_end_min: temp_event.end_min_val,
-                  cur_end_ampm: temp_event.end_ampm_val,
-                  cur_description: temp_event.description,
-                  cur_giveaway: temp_event.giveaway,
-                  cur_fee: temp_event.fee
-                })}
+                onPress={() =>
+                  navigation.navigate("ext_activites", {
+                    cur_title: temp_event.title,
+                    cur_host: temp_event.host,
+                    cur_location: temp_event.location,
+                    cur_day: temp_event.day,
+                    cur_date: temp_event.day_value,
+                    cur_month: temp_event.month_value,
+                    cur_year: temp_event.year_value,
+                    cur_start_hr: temp_event.start_hr_val,
+                    cur_start_min: temp_event.start_min_val,
+                    cur_start_amPm: temp_event.start_ampm_val,
+                    cur_end_hr: temp_event.end_hr_val,
+                    cur_end_min: temp_event.end_min_val,
+                    cur_end_ampm: temp_event.end_ampm_val,
+                    cur_description: temp_event.description,
+                    cur_giveaway: temp_event.giveaway,
+                    cur_fee: temp_event.fee,
+                  })
+                }
               >
                 <Text style={styles.viewMoreText}>View More</Text>
                 <AntDesign name="right" size={15} color="black" />
@@ -365,32 +464,32 @@ const Activities = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
     height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '90%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "90%",
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   addEventButton: {
-    backgroundColor: '#075eec',
+    backgroundColor: "#075eec",
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
   },
   addEventButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   scrollView: {
     flex: 1,
@@ -403,21 +502,21 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   eventCard: {
     borderWidth: 1,
-    borderColor: '#989898',
+    borderColor: "#989898",
     borderRadius: 10,
     marginBottom: 15,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   eventDetails: {
     padding: 15,
   },
   eventTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   eventInfo: {
@@ -425,68 +524,68 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   viewMoreButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: '#989898',
+    borderTopColor: "#989898",
   },
   viewMoreText: {
-    color: '#075eec',
+    color: "#075eec",
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 20,
     padding: 20,
-    width: '90%',
-    maxHeight: '90%',
+    width: "90%",
+    maxHeight: "90%",
   },
   closeButton: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginBottom: 10,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#B2ACAC',
+    borderColor: "#B2ACAC",
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
   },
   descriptionInput: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   labelText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 10,
     marginBottom: 5,
   },
   dateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   timeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   dropdown: {
     height: 40,
-    borderColor: '#B2ACAC',
+    borderColor: "#B2ACAC",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 8,
@@ -494,15 +593,15 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   submitButton: {
-    backgroundColor: '#075eec',
+    backgroundColor: "#075eec",
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   submitButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 });
 
