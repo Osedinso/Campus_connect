@@ -17,7 +17,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-const Ext_Activites = ({ route, navigation }) => {
+const Ext_Activities = ({ route, navigation }) => {
   const {
     cur_title,
     cur_host,
@@ -38,7 +38,7 @@ const Ext_Activites = ({ route, navigation }) => {
   } = route.params;
   const [modalVisible, setModalVisible] = useState(true);
   return (
-    <SafeAreaView className="flex h-screen bg-white">
+    <View className="flex h-screen bg-white">
       {/* This is the top nav bar  */}
       <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
         <View className=" flex flex-row w-screen justify-start items-center">
@@ -151,10 +151,10 @@ const Ext_Activites = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
-export default Ext_Activites;
+export default Ext_Activities;
 
 const styles = StyleSheet.create({});

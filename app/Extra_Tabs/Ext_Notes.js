@@ -22,7 +22,7 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from 'expo-image-picker';
 
-const Ext_Activites = ({ route, navigation }) => {
+const Ext_Activities = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [course, set_course] = useState(null);
   const [image, setImage] = useState(null)
@@ -195,7 +195,7 @@ const Ext_Activites = ({ route, navigation }) => {
   );
 };
 
-export default Ext_Activites;
+export default Ext_Activities;
 
 const styles = StyleSheet.create({
   floatingButton: {
