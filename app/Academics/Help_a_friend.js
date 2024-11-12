@@ -1,13 +1,34 @@
+// screens/Help_a_friend.js
+
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, TextInput, Alert, SafeAreaView } from 'react-native';
-import { collection, query, orderBy, onSnapshot, updateDoc, doc, arrayUnion } from 'firebase/firestore';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  updateDoc,
+  doc,
+  arrayUnion,
+} from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useAuth } from '../../context/authContext';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { format } from 'timeago.js';
-import HomeHeader from "../../components/HomeHeader";
+import HomeHeader from '../../components/HomeHeader';
 
-const DEFAULT_PROFILE_IMAGE = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+const DEFAULT_PROFILE_IMAGE =
+  'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
 
 const Help_a_friend = () => {
   const [requests, setRequests] = useState([]);
@@ -25,11 +46,11 @@ const Help_a_friend = () => {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const requestsData = snapshot.docs.map(doc => ({
+      const requestsData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         username: doc.data().username || 'Anonymous',
-        userProfilePic: doc.data().userProfilePic || DEFAULT_PROFILE_IMAGE
+        userProfilePic: doc.data().userProfilePic || DEFAULT_PROFILE_IMAGE,
       }));
       setRequests(requestsData);
       setLoading(false);
@@ -52,8 +73,8 @@ const Help_a_friend = () => {
           username: user.username || 'Anonymous',
           userProfilePic: user.profileUrl || DEFAULT_PROFILE_IMAGE,
           text: comment.trim(),
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        }),
       });
       setComment('');
       setSelectedRequest(null);
@@ -67,17 +88,21 @@ const Help_a_friend = () => {
     if (!item) return null;
 
     return (
-      <View className="bg-white rounded-xl shadow-sm mb-4 overflow-hidden">
+      <View style={styles.postContainer}>
         {/* User Info Header */}
-        <View className="flex-row items-center p-4 bg-gray-50">
+        <View style={styles.userInfoContainer}>
           <Image
             source={{ uri: item.userProfilePic || DEFAULT_PROFILE_IMAGE }}
-            className="w-12 h-12 rounded-full border-2 border-blue-100"
+            style={styles.userImage}
           />
-          <View className="ml-3 flex-1">
-            <Text className="font-bold text-lg">{item.username || 'Anonymous'}</Text>
+          <View style={styles.userInfoTextContainer}>
+            <Text style={styles.usernameText}>
+              {item.username || 'Anonymous'}
+            </Text>
             {item.timestamp && (
-              <Text>{format(item.timestamp?.toDate())}</Text>
+              <Text style={styles.timestampText}>
+                {format(item.timestamp?.toDate())}
+              </Text>
             )}
           </View>
         </View>
@@ -85,25 +110,29 @@ const Help_a_friend = () => {
         {/* Image */}
         <Image
           source={{ uri: item.imageUrl }}
-          className="w-full h-72"
+          style={styles.postImage}
           resizeMode="cover"
         />
-        <View className="p-4">
-          <Text className="text-gray-800 text-lg">{item.description}</Text>
+        <View style={styles.postContentContainer}>
+          <Text style={styles.postDescription}>{item.description}</Text>
         </View>
 
         {/* Comments Section */}
-        <View className="p-4 border-t border-gray-100">
-          <Text className="font-bold text-lg mb-3">Comments</Text>
+        <View style={styles.commentsContainer}>
+          <Text style={styles.commentsHeader}>Comments</Text>
           {item.comments?.map((comment, index) => (
-            <View key={index} className="flex-row items-start mb-3 bg-gray-50 p-3 rounded-lg">
+            <View key={index} style={styles.commentItem}>
               <Image
-                source={{ uri: comment.userProfilePic || DEFAULT_PROFILE_IMAGE }}
-                className="w-10 h-10 rounded-full border border-gray-200"
+                source={{
+                  uri: comment.userProfilePic || DEFAULT_PROFILE_IMAGE,
+                }}
+                style={styles.commentUserImage}
               />
-              <View className="ml-3 flex-1">
-                <Text className="font-bold text-gray-800">{comment.username || 'Anonymous'}</Text>
-                <Text className="text-gray-600 mt-1">{comment.text}</Text>
+              <View style={styles.commentTextContainer}>
+                <Text style={styles.commentUsername}>
+                  {comment.username || 'Anonymous'}
+                </Text>
+                <Text style={styles.commentText}>{comment.text}</Text>
               </View>
             </View>
           ))}
@@ -111,16 +140,16 @@ const Help_a_friend = () => {
           {/* Add Comment Section */}
           {user ? (
             selectedRequest === item.id ? (
-              <View className="flex-row items-center mt-3">
+              <View style={styles.addCommentContainer}>
                 <TextInput
                   value={comment}
                   onChangeText={setComment}
                   placeholder="Add a helpful comment..."
-                  className="flex-1 bg-gray-50 px-4 py-3 rounded-full mr-2"
+                  style={styles.commentInput}
                 />
                 <TouchableOpacity
                   onPress={() => addComment(item.id)}
-                  className="bg-blue-500 p-3 rounded-full"
+                  style={styles.sendButton}
                 >
                   <Feather name="send" size={20} color="white" />
                 </TouchableOpacity>
@@ -128,14 +157,14 @@ const Help_a_friend = () => {
             ) : (
               <TouchableOpacity
                 onPress={() => setSelectedRequest(item.id)}
-                className="mt-2 flex-row items-center"
+                style={styles.addCommentButton}
               >
-                <Feather name="message-circle" size={20} color="#3b82f6" />
-                <Text className="text-blue-500 ml-2 font-medium">Add Comment</Text>
+                <Feather name="message-circle" size={20} color="#3B82F6" />
+                <Text style={styles.addCommentButtonText}>Add Comment</Text>
               </TouchableOpacity>
             )
           ) : (
-            <Text className="text-gray-500 mt-2">Sign in to comment</Text>
+            <Text style={styles.signInToCommentText}>Sign in to comment</Text>
           )}
         </View>
       </View>
@@ -144,46 +173,224 @@ const Help_a_friend = () => {
 
   if (!user) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-100">
+      <View style={styles.container}>
         <HomeHeader />
-        <View className="flex-1 justify-center items-center p-4">
-          <Text className="text-xl text-gray-600">Please sign in to view help requests</Text>
+        <View style={styles.centeredContent}>
+          <Text style={styles.signInText}>
+            Please sign in to view help requests
+          </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <View style={styles.container}>
       <HomeHeader />
       <FlatList
         data={requests}
         renderItem={renderItem}
-        keyExtractor={item => item?.id}
-        contentContainerStyle={{ padding: 16 }}
+        keyExtractor={(item) => item?.id}
+        contentContainerStyle={styles.contentContainer}
         ListHeaderComponent={
-          <View className="mb-4">
-            <Text className="text-2xl font-bold text-gray-800">Help Requests</Text>
-            <Text className="text-gray-500 mt-1">See how you can help others</Text>
+          <View style={styles.listHeader}>
+            <Text style={styles.pageTitle}>Help Requests</Text>
+            <Text style={styles.pageSubtitle}>
+              See how you can help others
+            </Text>
           </View>
         }
         ListEmptyComponent={
           loading ? (
-            <View className="flex-1 justify-center items-center p-8">
-              <Text>Loading...</Text>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#3B82F6" />
             </View>
           ) : (
-            <View className="flex-1 justify-center items-center p-8">
-              <Feather name="inbox" size={48} color="#9ca3af" />
-              <Text className="text-gray-500 text-lg mt-4 text-center">
+            <View style={styles.emptyContainer}>
+              <Feather name="inbox" size={48} color="#9CA3AF" />
+              <Text style={styles.emptyText}>
                 No help requests yet.{'\n'}Check back later!
               </Text>
             </View>
           )
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F3F4F6', // Tailwind gray-100
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  listHeader: {
+    marginBottom: 16,
+  },
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937', // Tailwind gray-800
+  },
+  pageSubtitle: {
+    color: '#6B7280', // Tailwind gray-500
+    marginTop: 4,
+  },
+  centeredContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  signInText: {
+    fontSize: 18,
+    color: '#4B5563', // Tailwind gray-600
+    textAlign: 'center',
+  },
+  // Post Styles
+  postContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 3,
+  },
+  userInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#F9FAFB',
+  },
+  userImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: '#BFDBFE', // Tailwind blue-100
+  },
+  userInfoTextContainer: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  usernameText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#1F2937',
+  },
+  timestampText: {
+    color: '#6B7280',
+    fontSize: 12,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+  },
+  postContentContainer: {
+    padding: 16,
+  },
+  postDescription: {
+    fontSize: 16,
+    color: '#374151',
+  },
+  commentsContainer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  commentsHeader: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 12,
+    color: '#1F2937',
+  },
+  commentItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+    backgroundColor: '#F9FAFB',
+    padding: 12,
+    borderRadius: 8,
+  },
+  commentUserImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderColor: '#E5E7EB',
+    borderWidth: 1,
+  },
+  commentTextContainer: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  commentUsername: {
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  commentText: {
+    marginTop: 4,
+    color: '#4B5563',
+  },
+  addCommentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 24,
+    marginRight: 8,
+  },
+  sendButton: {
+    backgroundColor: '#3B82F6',
+    padding: 12,
+    borderRadius: 24,
+  },
+  addCommentButton: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addCommentButtonText: {
+    color: '#3B82F6',
+    marginLeft: 8,
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  signInToCommentText: {
+    color: '#6B7280',
+    marginTop: 8,
+    fontSize: 14,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  emptyText: {
+    color: '#6B7280',
+    fontSize: 16,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+});
 
 export default Help_a_friend;

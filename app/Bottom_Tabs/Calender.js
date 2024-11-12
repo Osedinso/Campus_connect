@@ -197,7 +197,7 @@ const App = ({ navigation }) => {
   }, [tasked_day]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <Calendar
           style={styles.calendar}
@@ -394,7 +394,7 @@ const App = ({ navigation }) => {
       >
         <AntDesign name="plus" size={40} color="white" />
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 

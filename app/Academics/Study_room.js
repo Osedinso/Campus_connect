@@ -13,7 +13,6 @@ import {
 import ColorPicker from "react-native-wheel-color-picker";
 
 import React, { useState, useEffect } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { db } from "../../firebaseConfig";
@@ -24,6 +23,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
+import HomeHeader from '../../components/HomeHeader';
 
 const Activites = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -78,28 +78,9 @@ const Activites = ({ navigation }) => {
     return () => unsubscribe && unsubscribe(); // Clean up the listener
   }, [user?.userId]);
   return (
-    <SafeAreaView className="flex h-screen bg-white">
+    <View className="flex h-screen bg-white">
       {/* This is the top nav bar  */}
-      <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
-        <View className=" flex flex-row w-11/12 justify-between">
-          <View className="basis-2/6 items-start justify-center ">
-            <TouchableOpacity onPress={() => navigation.navigate("Academics")}>
-              <AntDesign name="book" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
-          <View className="basis-2/6 flex justify-center items-center pb-3">
-            <Image
-              source={require("../../assets/images/login.png")}
-              className="self-center  w-16 h-16 "
-              resizeMode="contain"
-              alt="Logo"
-            />
-          </View>
-          <View className="basis-2/6 justify-center items-end">
-            <FontAwesome name="user-circle" size={24} color="black" />
-          </View>
-        </View>
-      </View>
+      <HomeHeader />
       <ScrollView className="flex basis-4/5 bg-white ">
         {/* This is the welcome Text and date */}
         <View className="basis-1/4 w-screen flex justify-center items-center ">
@@ -243,7 +224,7 @@ const Activites = ({ navigation }) => {
       >
         <AntDesign name="plus" size={40} color="white" />
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 

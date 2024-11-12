@@ -1,3 +1,5 @@
+// screens/QuickExam.js
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,7 +10,7 @@ import {
   TextInput,
   StyleSheet,
 } from 'react-native';
-import HomeHeader from "../../components/HomeHeader";
+import HomeHeader from '../../components/HomeHeader';
 
 const QuickExam = () => {
   const [inputText, setInputText] = useState('');
@@ -56,7 +58,7 @@ Answer: [Correct letter]
 2. [Next question]
 [And so on...]
 
-Make sure each question has exactly 4 options labeled A) B) C) D) and clearly state the correct answer after each question with "Answer: [letter]"`
+Make sure each question has exactly 4 options labeled A) B) C) D) and clearly state the correct answer after each question with "Answer: [letter]"`,
           }),
         }
       );
@@ -64,7 +66,10 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error response from server:', errorData);
-        throw new Error(errorData.error || 'An error occurred while generating questions');
+        throw new Error(
+          errorData.error ||
+            'An error occurred while generating questions'
+        );
       }
 
       const data = await response.json();
@@ -74,7 +79,9 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
       setQuestions(parsedQuestions);
     } catch (error) {
       console.error('Error calling chatCompletion function:', error);
-      setError(error.message || 'An error occurred while generating questions');
+      setError(
+        error.message || 'An error occurred while generating questions'
+      );
     } finally {
       setLoading(false);
     }
@@ -84,49 +91,50 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
     const questions = [];
     let currentQuestion = null;
 
-    const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
-    
+    const lines = content
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
     for (const line of lines) {
-        if (/^\d+\./.test(line)) {
-            if (currentQuestion) {
-                questions.push(currentQuestion);
-            }
-            currentQuestion = {
-                question: line.replace(/^\d+\.\s*/, ''),
-                options: [],
-                correct_answer: null
-            };
+      if (/^\d+\./.test(line)) {
+        if (currentQuestion) {
+          questions.push(currentQuestion);
         }
-        else if (/^[A-D]\)/.test(line)) {
-            if (currentQuestion) {
-                const letter = line[0];
-                const text = line.slice(2).trim();
-                currentQuestion.options.push({
-                    letter: letter,
-                    text: text
-                });
-            }
+        currentQuestion = {
+          question: line.replace(/^\d+\.\s*/, ''),
+          options: [],
+          correct_answer: null,
+        };
+      } else if (/^[A-D]\)/.test(line)) {
+        if (currentQuestion) {
+          const letter = line[0];
+          const text = line.slice(2).trim();
+          currentQuestion.options.push({
+            letter: letter,
+            text: text,
+          });
         }
-        else if (/^Answer:\s*[A-D]$/i.test(line)) {
-            if (currentQuestion) {
-                currentQuestion.correct_answer = line.slice(-1).toUpperCase();
-            }
+      } else if (/^Answer:\s*[A-D]$/i.test(line)) {
+        if (currentQuestion) {
+          currentQuestion.correct_answer = line.slice(-1).toUpperCase();
         }
+      }
     }
 
     if (currentQuestion && currentQuestion.options.length > 0) {
-        questions.push(currentQuestion);
+      questions.push(currentQuestion);
     }
-    
+
     console.log('Parsed questions:', questions);
     return questions;
   };
 
   const handleSelectOption = (questionIndex, optionLetter) => {
     if (!isSubmitted) {
-      setSelectedAnswers(prev => ({
+      setSelectedAnswers((prev) => ({
         ...prev,
-        [questionIndex]: optionLetter
+        [questionIndex]: optionLetter,
       }));
     }
   };
@@ -149,7 +157,8 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
     });
     return correctCount;
   };
-const renderOption = (option, questionIndex, question) => {
+
+  const renderOption = (option, questionIndex, question) => {
     const isSelected = selectedAnswers[questionIndex] === option.letter;
     const isCorrect = question.correct_answer === option.letter;
     const isIncorrect = isSubmitted && isSelected && !isCorrect;
@@ -166,12 +175,14 @@ const renderOption = (option, questionIndex, question) => {
         onPress={() => handleSelectOption(questionIndex, option.letter)}
         disabled={isSubmitted}
       >
-        <Text style={[
-          styles.optionText,
-          isSelected && styles.selectedOptionText,
-          isSubmitted && isCorrect && styles.correctOptionText,
-          isIncorrect && styles.incorrectOptionText,
-        ]}>
+        <Text
+          style={[
+            styles.optionText,
+            isSelected && styles.selectedOptionText,
+            isSubmitted && isCorrect && styles.correctOptionText,
+            isIncorrect && styles.incorrectOptionText,
+          ]}
+        >
           {option.letter}) {option.text}
         </Text>
       </TouchableOpacity>
@@ -179,9 +190,9 @@ const renderOption = (option, questionIndex, question) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <HomeHeader />
+    <View style={styles.container}>
+      <HomeHeader />
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.inputSection}>
           <Text style={styles.title}>Quick Exam Generator</Text>
 
@@ -189,7 +200,7 @@ const renderOption = (option, questionIndex, question) => {
             {/* Question Count Selector */}
             <View style={styles.questionCountContainer}>
               <Text style={styles.questionCountLabel}>
-                Number of Questions: {questionCount}
+                Number of Questions
               </Text>
               <View style={styles.questionCountButtonsContainer}>
                 {[3, 5, 7, 10].map((count) => (
@@ -240,10 +251,14 @@ const renderOption = (option, questionIndex, question) => {
               {loading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator color="#fff" />
-                  <Text style={styles.buttonText}>Generating {questionCount} Questions...</Text>
+                  <Text style={styles.buttonText}>
+                    Generating {questionCount} Questions...
+                  </Text>
                 </View>
               ) : (
-                <Text style={styles.buttonText}>Generate {questionCount} Questions</Text>
+                <Text style={styles.buttonText}>
+                  Generate {questionCount} Questions
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -258,17 +273,19 @@ const renderOption = (option, questionIndex, question) => {
                   {index + 1}. {question.question}
                 </Text>
                 <View style={styles.optionsContainer}>
-                  {question.options.map((option) => 
+                  {question.options.map((option) =>
                     renderOption(option, index, question)
                   )}
                 </View>
                 {isSubmitted && (
-                  <Text style={[
-                    styles.feedbackText,
-                    selectedAnswers[index] === question.correct_answer
-                      ? styles.correctFeedback
-                      : styles.incorrectFeedback
-                  ]}>
+                  <Text
+                    style={[
+                      styles.feedbackText,
+                      selectedAnswers[index] === question.correct_answer
+                        ? styles.correctFeedback
+                        : styles.incorrectFeedback,
+                    ]}
+                  >
                     {selectedAnswers[index] === question.correct_answer
                       ? '✓ Correct!'
                       : `✗ Incorrect. Correct answer: ${question.correct_answer}`}
@@ -277,14 +294,15 @@ const renderOption = (option, questionIndex, question) => {
               </View>
             ))}
 
-            {Object.keys(selectedAnswers).length === questions.length && !isSubmitted && (
-              <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSubmit}
-              >
-                <Text style={styles.buttonText}>Submit Answers</Text>
-              </TouchableOpacity>
-            )}
+            {Object.keys(selectedAnswers).length === questions.length &&
+              !isSubmitted && (
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={handleSubmit}
+                >
+                  <Text style={styles.buttonText}>Submit Answers</Text>
+                </TouchableOpacity>
+              )}
 
             {isSubmitted && (
               <View style={styles.resultsContainer}>
@@ -301,29 +319,41 @@ const renderOption = (option, questionIndex, question) => {
             )}
           </View>
         )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F3F4F6', // Tailwind gray-100
   },
   content: {
     padding: 16,
+    paddingBottom: 32,
   },
   inputSection: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    // Shadow for iOS
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Elevation for Android
     elevation: 3,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937', // Tailwind gray-800
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  inputContainer: {
+    marginBottom: 16,
   },
   questionCountContainer: {
     marginBottom: 16,
@@ -331,172 +361,159 @@ const styles = StyleSheet.create({
   questionCountLabel: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: '#374151', // Tailwind gray-700
     marginBottom: 8,
   },
   questionCountButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 8,
   },
   questionCountButton: {
-    backgroundColor: '#f5f5f5',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    minWidth: 60,
+    flex: 1,
+    backgroundColor: '#E5E7EB', // Tailwind gray-200
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginHorizontal: 4,
     alignItems: 'center',
   },
   questionCountButtonActive: {
-    backgroundColor: '#2196f3',
-    borderColor: '#2196f3',
+    backgroundColor: '#3B82F6', // Tailwind blue-500
   },
   questionCountButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: '#374151',
   },
   questionCountButtonTextActive: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontWeight: '500',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-  },
-  inputContainer: {
-    marginBottom: 16,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#D1D5DB', // Tailwind gray-300
     borderRadius: 8,
     padding: 12,
     textAlignVertical: 'top',
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB', // Tailwind gray-50
     minHeight: 120,
     fontSize: 16,
+    color: '#374151',
   },
   errorContainer: {
-    backgroundColor: '#fdecea',
+    backgroundColor: '#FEE2E2', // Tailwind red-100
     borderRadius: 8,
     padding: 12,
     marginTop: 8,
   },
   errorText: {
-    color: '#d93025',
+    color: '#B91C1C', // Tailwind red-700
+    fontSize: 14,
   },
   generateButton: {
-    backgroundColor: '#2196f3',
+    backgroundColor: '#3B82F6', // Tailwind blue-500
     padding: 16,
     borderRadius: 8,
     marginTop: 16,
     alignItems: 'center',
   },
   disabledButton: {
-    backgroundColor: '#bdbdbd',
+    backgroundColor: '#9CA3AF', // Tailwind gray-400
   },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
+    marginLeft: 8,
   },
   questionsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
     padding: 16,
+    // Shadow for iOS
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    // Elevation for Android
     elevation: 3,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#1F2937', // Tailwind gray-800
     marginBottom: 16,
-    color: '#333',
+    textAlign: 'center',
   },
   questionCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F9FAFB', // Tailwind gray-50
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: '#E5E7EB', // Tailwind gray-200
   },
   questionText: {
     fontSize: 18,
     fontWeight: '500',
-    marginBottom: 16,
-    color: '#2c3e50',
+    marginBottom: 12,
+    color: '#111827', // Tailwind gray-900
   },
   optionsContainer: {
     marginBottom: 8,
   },
   option: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#D1D5DB', // Tailwind gray-300
   },
   selectedOption: {
-    backgroundColor: '#e3f2fd',
-    borderColor: '#2196f3',
+    backgroundColor: '#DBEAFE', // Tailwind blue-100
+    borderColor: '#3B82F6', // Tailwind blue-500
   },
   correctOption: {
-    backgroundColor: '#e8f5e9',
-    borderColor: '#4caf50',
+    backgroundColor: '#D1FAE5', // Tailwind green-100
+    borderColor: '#10B981', // Tailwind green-500
   },
   incorrectOption: {
-    backgroundColor: '#ffebee',
-    borderColor: '#ef5350',
+    backgroundColor: '#FEE2E2', // Tailwind red-100
+    borderColor: '#EF4444', // Tailwind red-500
   },
   optionText: {
     fontSize: 16,
-    color: '#333',
+    color: '#374151',
   },
   selectedOptionText: {
-    color: '#2196f3',
+    color: '#1E40AF', // Tailwind blue-800
     fontWeight: '500',
   },
   correctOptionText: {
-    color: '#4caf50',
+    color: '#065F46', // Tailwind green-800
     fontWeight: '500',
   },
   incorrectOptionText: {
-    color: '#ef5350',
+    color: '#B91C1C', // Tailwind red-700
     fontWeight: '500',
   },
   feedbackText: {
     marginTop: 8,
     fontSize: 14,
     fontWeight: '500',
+    textAlign: 'right',
   },
   correctFeedback: {
-    color: '#4caf50',
+    color: '#10B981', // Tailwind green-500
   },
   incorrectFeedback: {
-    color: '#ef5350',
+    color: '#EF4444', // Tailwind red-500
   },
   submitButton: {
-    backgroundColor: '#4caf50',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  resetButton: {
-    backgroundColor: '#2196f3',
+    backgroundColor: '#10B981', // Tailwind green-500
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -509,8 +526,14 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1F2937', // Tailwind gray-800
     marginBottom: 16,
+  },
+  resetButton: {
+    backgroundColor: '#3B82F6', // Tailwind blue-500
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
   },
 });
 
