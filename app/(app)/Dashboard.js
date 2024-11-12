@@ -45,6 +45,7 @@ const CalendarStack = () => (
 const ActivitiesStack = () => (
   <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
     <Stack.Screen name="ActivitiesScreen" component={ActivitiesScreen} />
+    <Stack.Screen name="ext_activities" component = {ExtActivities}/>
   </Stack.Navigator>
 );
 

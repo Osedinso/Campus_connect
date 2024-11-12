@@ -171,7 +171,7 @@ const Activities = ({ navigation }) => {
               </View>
               <TouchableOpacity
                 style={styles.viewMoreButton}
-                onPress={() => navigation.navigate("ext_activites", {
+                onPress={() => navigation.navigate("ext_activities", {
                   cur_title: temp_event.title,
                   cur_host: temp_event.host,
                   cur_location: temp_event.location,
