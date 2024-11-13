@@ -20,7 +20,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 
 const Ext_Activities = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,18 +38,24 @@ const Ext_Activities = ({ route, navigation }) => {
 
     set_class_list((prevCourse) => [...prevCourse, newCourse]);
   }
-  const [fileResponse, setFileResponse] = useState([]);
+  const [file, setFile] = useState(null);
 
-  const handleDocumentSelection = useCallback(async () => {
+  const handleDocumentSelection = async () => {
     try {
-      const response = await DocumentPicker.pick({
-        presentationStyle: 'fullScreen',
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf', // you can change this for different file types
       });
-      setFileResponse(response);
-    } catch (err) {
-      console.warn(err);
+
+      if (result.type === 'success') {
+        setFile(result);
+        console.log(result); // Log the selected document data
+      } else {
+        console.log("Document picker canceled");
+      }
+    } catch (error) {
+      console.error("Error picking document: ", error);
     }
-  }, []);
+  };
   const uploadImage = async () => {
     setUploading(true)
     const response = await fetch(image.uri)
