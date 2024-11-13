@@ -38,17 +38,18 @@ const Ext_Activities = ({ route, navigation }) => {
 
     set_class_list((prevCourse) => [...prevCourse, newCourse]);
   }
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-    const source = { uri: result.assets[0].uri };
-    console.log(source);
-    setImage(source);
-  };
+  const [fileResponse, setFileResponse] = useState([]);
+
+  const handleDocumentSelection = useCallback(async () => {
+    try {
+      const response = await DocumentPicker.pick({
+        presentationStyle: 'fullScreen',
+      });
+      setFileResponse(response);
+    } catch (err) {
+      console.warn(err);
+    }
+  }, []);
   const uploadImage = async () => {
     setUploading(true)
     const response = await fetch(image.uri)
@@ -165,7 +166,7 @@ const Ext_Activities = ({ route, navigation }) => {
               <TouchableOpacity
                 style={styles.submitButton}
                 onPress={() => {
-                  pickImage();
+                  handleDocumentSelection();
                 }}
               >
                 <Text style={styles.submitButtonText}>Select File</Text>

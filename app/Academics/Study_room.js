@@ -104,7 +104,7 @@ const Activites = ({ navigation }) => {
 
                         <TouchableOpacity
                           onPress={() =>
-                            navigation.navigate("ext_notes", {
+                            navigation.navigate("ExtNotes", {
                               cur_course: temp_course.course,
                             })
                           }

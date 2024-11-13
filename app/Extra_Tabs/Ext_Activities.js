@@ -226,7 +226,7 @@ const Ext_Activities = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
