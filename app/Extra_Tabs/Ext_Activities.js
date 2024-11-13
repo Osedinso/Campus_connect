@@ -20,7 +20,7 @@ import { db } from "../../firebaseConfig";
 import { addDoc, collection, doc, onSnapshot, getDocs } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
 
-const Ext_Activites = ({ route, navigation }) => {
+const Ext_Activities = ({ route, navigation }) => {
   const {
     cur_event_id,
     cur_host_id,
@@ -226,10 +226,10 @@ const Ext_Activites = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
-export default Ext_Activites;
+export default Ext_Activities;
 
 const styles = StyleSheet.create({});

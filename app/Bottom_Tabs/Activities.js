@@ -310,7 +310,7 @@ const Activities = ({ navigation }) => {
                 style={styles.viewMoreButton}
                 onPress={() =>
                   navigation.navigate(
-                    "ext_activities",
+                    "ext_activitiies",
                     {
                       cur_event_id: temp_event.id,
                       cur_host_id: temp_event.userID,
