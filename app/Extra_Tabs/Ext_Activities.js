@@ -95,7 +95,7 @@ const Ext_Activities = ({ route, navigation }) => {
 
   const [modalVisible, setModalVisible] = useState(true);
   return (
-    <SafeAreaView className="flex h-fit bg-white">
+    <View className="flex h-fit bg-white">
       {/* This is the top nav bar  */}
       <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
         <View className=" flex flex-row w-screen justify-start items-center">
