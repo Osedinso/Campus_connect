@@ -9,16 +9,21 @@ import {
 } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { db } from "../../firebaseConfig";
+import { addDoc, collection, doc, onSnapshot, getDocs } from "firebase/firestore";
+import { useAuth } from "../../context/authContext";
 
 const Ext_Activites = ({ route, navigation }) => {
   const {
+    cur_event_id,
+    cur_host_id,
     cur_title,
     cur_host,
     cur_giveaway,
@@ -36,16 +41,68 @@ const Ext_Activites = ({ route, navigation }) => {
     cur_description,
     cur_fee,
   } = route.params;
+  const [attendee, setAttendee] = useState([]);
+  const { user } = useAuth();
+  async function attend_event() {
+    try {
+      const userRef = doc(db, "Activities", cur_event_id);
+      const activityRef = collection(userRef, "Attendees");
+      const existingAttendeesSnapshot = await getDocs(activityRef);
+      const duplicate = existingAttendeesSnapshot.docs.some(
+        (doc) => doc.data().email === user.email
+      );
+
+      if (duplicate) {
+        alert("You have already registered for this event.");
+        return;
+      }
+
+      await addDoc(activityRef, {
+        name: user.username,
+        email: user.email,
+      });
+      alert("Course added successfully!");
+    } catch (error) {
+      console.error("Error adding course: ", error);
+    }
+  }
+
+  useEffect(() => {
+    const fetchCourses = () => {
+      try {
+        const userRef = doc(db, "Activities", cur_event_id);
+        const activityRef = collection(userRef, "Attendees"); // Reference the user document
+
+        // Set up a real-time listener with onSnapshot
+        const unsubscribe = onSnapshot(activityRef, (snapshot) => {
+          const ActivitiesList = snapshot.docs.map((doc) => ({
+            name: doc.data().name,
+            email: doc.data().email,
+          }));
+          setAttendee(ActivitiesList);
+        });
+
+        // Clean up the listener when the component unmounts
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching courses: ", error);
+      }
+    };
+
+    const unsubscribe = fetchCourses();
+    return () => unsubscribe && unsubscribe(); // Clean up the listener
+  });
+
   const [modalVisible, setModalVisible] = useState(true);
   return (
-    <SafeAreaView className="flex h-screen bg-white">
+    <SafeAreaView className="flex h-fit bg-white">
       {/* This is the top nav bar  */}
       <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
         <View className=" flex flex-row w-screen justify-start items-center">
           <View className=" h-12 w-24 items-center  justify-center flex flex-row">
             <TouchableOpacity
-              onPress={() => navigation.navigate("Activities")}
-              className=" justify-center items-center flex flex-row"
+              onPress={() => navigation.navigate("ActivitiesScreen")}
+              className=" justify-center items-center flex flex-row "
             >
               <Ionicons name="arrow-back-outline" size={24} color="black" />
               <Text className="ml-3">Back</Text>
@@ -116,18 +173,36 @@ const Ext_Activites = ({ route, navigation }) => {
               </View>
             </View>
             {/* Event Attendees */}
-            <View className="h-20 flex justify-center ">
+            <View className="mt-3 mb-3 h-fit flex justify-center ">
               <TouchableOpacity
                 onPress={() => {
                   console.log("Show Users");
+                  setModalVisible(!modalVisible);
                 }}
               >
                 <Text className="font-semibold text-[#002b84]">
-                  20 Attendees
+                  {attendee.length} Attendees
                 </Text>
               </TouchableOpacity>
-              {modalVisible && (
-                <View className="h-20 w-20 bg-slate-500"></View>
+              {modalVisible && cur_host_id == user.userId && (
+                <View className="h-20 w-full ">
+                  <View className="flex flex-row justify-between">
+                    <Text className="font-bold w-2/5">
+                      Name <Text></Text>
+                    </Text>
+                    <Text className="font-bold w-3/5"> Email </Text>
+                  </View>
+                  {attendee.map((temp_event, index) => (
+                    <View
+                      className="flex flex-row justify-between"
+                      key={index}
+                      style={styles.eventCard}
+                    >
+                      <Text className=" w-2/5">{temp_event.name}</Text>
+                      <Text className=" w-3/5"> {temp_event.email}</Text>
+                    </View>
+                  ))}
+                </View>
               )}
             </View>
             {/* Event Attend Button */}
@@ -136,7 +211,7 @@ const Ext_Activites = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     //Handel on press action
-                    navigation.navigate("Login");
+                    attend_event();
                   }}
                   className="w-full justify-center items-center"
                 >

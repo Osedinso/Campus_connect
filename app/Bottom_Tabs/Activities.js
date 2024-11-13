@@ -20,6 +20,7 @@ import {
   doc,
   onSnapshot,
   deleteDoc,
+  getDocs,
 } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
 
@@ -62,6 +63,7 @@ const Activities = ({ navigation }) => {
   const [end_hr_val, set_end_hr] = useState(null);
   const [end_min_val, set_end_min] = useState(null);
   const [end_ampm_val, set_end_ampm] = useState(null);
+  const [attendee, set_attendee] = useState([]);
 
   const months = [
     { label: "Jan", value: "1" },
@@ -113,6 +115,37 @@ const Activities = ({ navigation }) => {
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return daysOfWeek[date.getDay()];
   }
+  useEffect(() => {
+    const countAttendees = async () => {
+      try {
+        // Reference the "Activities" collection
+        const activitiesRef = collection(db, "Activities");
+        const activitiesSnapshot = await getDocs(activitiesRef);
+
+        // Loop through each activity and count attendees
+        const counts = await Promise.all(
+          activitiesSnapshot.docs.map(async (activityDoc) => {
+            const activityId = activityDoc.id;
+            const attendeesRef = collection(activityDoc.ref, "Attendees");
+            const attendeesSnapshot = await getDocs(attendeesRef);
+            const count = attendeesSnapshot.size;
+
+            return {
+              activityId,
+              attendeesCount: count,
+            };
+          })
+        );
+
+        // Set the result to state
+        set_attendee(counts);
+      } catch (error) {
+        console.error("Error fetching attendees count: ", error);
+      }
+    };
+
+    countAttendees();
+  }, []);
 
   async function submit_form() {
     const month = months.find((m) => m.label === month_value);
@@ -201,7 +234,15 @@ const Activities = ({ navigation }) => {
         console.error("Error deleting event: ", error);
       }
     }
-    
+  }
+  function fetch_attendee(event_id) {
+    const item = attendee.find((item) => item.activityId === event_id);
+    if (item) {
+      return item.attendeesCount;
+    } else {
+      console.log("No matching activity found");
+      return null;
+    }
   }
 
   return (
@@ -227,22 +268,19 @@ const Activities = ({ navigation }) => {
               <View style={styles.eventDetails}>
                 <View className="flex-row w-full h-8 items-center justify-between">
                   <Text style={styles.eventTitle}>{temp_event.title}</Text>
-                  {
-                    temp_event.userID === user.userId && (
-                      <TouchableOpacity
-                        onPress={() =>
-                          delete_event(
-                            temp_event.userID,
-                            user.userId,
-                            temp_event.id
-                          )
-                        }
-                      >
-                        <Ionicons name="trash-outline" size={15} color="black" />
-                      </TouchableOpacity>
-                    )
-                  }
-                  
+                  {temp_event.userID === user.userId && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        delete_event(
+                          temp_event.userID,
+                          user.userId,
+                          temp_event.id
+                        )
+                      }
+                    >
+                      <Ionicons name="trash-outline" size={15} color="black" />
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 <Text style={styles.eventInfo}>
@@ -264,29 +302,37 @@ const Activities = ({ navigation }) => {
                   />{" "}
                   {temp_event.location}
                 </Text>
-                <Text style={styles.eventInfo}>10 Attendees</Text>
+                <Text style={styles.eventInfo}>
+                  {fetch_attendee(temp_event.id)} Attendees
+                </Text>
               </View>
               <TouchableOpacity
                 style={styles.viewMoreButton}
                 onPress={() =>
-                  navigation.navigate("ext_activites", {
-                    cur_title: temp_event.title,
-                    cur_host: temp_event.host,
-                    cur_location: temp_event.location,
-                    cur_day: temp_event.day,
-                    cur_date: temp_event.day_value,
-                    cur_month: temp_event.month_value,
-                    cur_year: temp_event.year_value,
-                    cur_start_hr: temp_event.start_hr_val,
-                    cur_start_min: temp_event.start_min_val,
-                    cur_start_amPm: temp_event.start_ampm_val,
-                    cur_end_hr: temp_event.end_hr_val,
-                    cur_end_min: temp_event.end_min_val,
-                    cur_end_ampm: temp_event.end_ampm_val,
-                    cur_description: temp_event.description,
-                    cur_giveaway: temp_event.giveaway,
-                    cur_fee: temp_event.fee,
-                  })
+                  navigation.navigate(
+                    "ext_activities",
+                    {
+                      cur_event_id: temp_event.id,
+                      cur_host_id: temp_event.userID,
+                      cur_title: temp_event.title,
+                      cur_host: temp_event.host,
+                      cur_location: temp_event.location,
+                      cur_day: temp_event.day,
+                      cur_date: temp_event.day_value,
+                      cur_month: temp_event.month_value,
+                      cur_year: temp_event.year_value,
+                      cur_start_hr: temp_event.start_hr_val,
+                      cur_start_min: temp_event.start_min_val,
+                      cur_start_amPm: temp_event.start_ampm_val,
+                      cur_end_hr: temp_event.end_hr_val,
+                      cur_end_min: temp_event.end_min_val,
+                      cur_end_ampm: temp_event.end_ampm_val,
+                      cur_description: temp_event.description,
+                      cur_giveaway: temp_event.giveaway,
+                      cur_fee: temp_event.fee,
+                    },
+                    console.log(temp_event.id)
+                  )
                 }
               >
                 <Text style={styles.viewMoreText}>View More</Text>
