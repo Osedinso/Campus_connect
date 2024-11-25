@@ -11,26 +11,29 @@ import {
   Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
-import React, { useState } from "react";
-import { Dropdown } from "react-native-element-dropdown";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as DocumentPicker from 'expo-document-picker';
+import * as DocumentPicker from "expo-document-picker";
+import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+import { storage, db } from "../../firebaseConfig";
+import { useAuth } from "../../context/authContext";
+import * as FileSystem from "expo-file-system";
 
 const Ext_Activities = ({ route, navigation }) => {
+  const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [course, set_course] = useState(null);
-  const [image, setImage] = useState(null)
-  const [uploading, setUploading] = useState(false) 
-  const [class_list, set_class_list] = useState([
-    
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const { cur_course } = route.params;
+  const [new_file_name, set_new_file_name] = useState(null);
+  const [new_file_uri, set_new_file_uri] = useState(null);
+
+  const [note_list, set_note_list] = useState([
     {
-      course: "CSCI 410",
+      note: "CSCI 410",
     },
   ]);
   function submit_form() {
@@ -43,37 +46,74 @@ const Ext_Activities = ({ route, navigation }) => {
   const handleDocumentSelection = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf', // you can change this for different file types
+        type: "application/pdf", // you can change this for different file types
       });
+      set_new_file_uri(result);
+      set_new_file_name(result.assets[0].name);
 
-      if (result.type === 'success') {
-        setFile(result);
-        console.log(result); // Log the selected document data
-      } else {
-        console.log("Document picker canceled");
-      }
+      console.log("Document selected:", result.assets[0].uri);
     } catch (error) {
       console.error("Error picking document: ", error);
     }
   };
-  const uploadImage = async () => {
-    setUploading(true)
-    const response = await fetch(image.uri)
-    const blob = response.blob()
-    const filename = image.uri.substring(image.uri.lastIndexOf('/')+1)
-    var ref = firebase.storage().ref().child(filename).put(blob)
+  const uploadNote = async (result) => {
     try {
-        await ref;
-    } catch (e){
-        console.log(e)
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+
+      // Create a storage reference with user ID and course name
+      const storageRef = ref(
+        storage,
+        `Notes/${user.userId}/${cur_course}/${result.assets[0].name}`
+      );
+
+      // Upload the blob to Firebase Storage
+      await uploadBytes(storageRef, blob);
+      console.log("File uploaded successfully");
+    } catch (error) {
+      console.error("Error picking document: ", error);
     }
-    setUploading(false)
-    Alert.alert(
-        'Photo uploaded!'
-    );
-    setImage(null);
-} 
-  const { cur_course } = route.params;
+  };
+  const fetchNotes = async () => {
+    try {
+      const notesRef = ref(storage, `Notes/${user.userId}/${cur_course}`);
+
+      // List all items in the directory
+      const result = await listAll(notesRef);
+
+      // Fetch download URLs for each file
+      const notesPromises = result.items.map(async (fileRef) => {
+        const url = await getDownloadURL(fileRef);
+        return { name: fileRef.name, url };
+      });
+
+      // Wait for all download URLs to be fetched
+      const notes = await Promise.all(notesPromises);
+
+      // Update the note_list state with the fetched notes
+
+      set_note_list(notes);
+    } catch (error) {
+      console.error("Error fetching notes: ", error);
+    }
+  };
+  // async function openFile(url) {
+  //   if (!url) {
+  //     console.error("URL is null or undefined");
+  //     return;
+  //   }
+  //   FileViewer.open(url)
+  //     .then(() => {
+  //       console.log("File opened successfully!");
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error opening file:", error);
+  //     });
+  // }
+
+  useEffect(() => {
+    fetchNotes();
+  }, [cur_course]);
 
   return (
     <SafeAreaView className="flex h-screen bg-white">
@@ -106,7 +146,7 @@ const Ext_Activities = ({ route, navigation }) => {
             <View className="flex  w-11/12 h-full justify-start">
               {/* Todays task and Live events on campus */}
               {/* Today's Tasks */}
-              {class_list.map((temp_course, index) => {
+              {note_list.map((temp_note, index) => {
                 return (
                   <View
                     key={index}
@@ -114,22 +154,14 @@ const Ext_Activities = ({ route, navigation }) => {
                     className="flex  basis-20 rounded-xl  justify-center items-center border-solid border border-[#989898] overflow-hidden mb-5"
                   >
                     {/* Tasks view below shows the 2 task in todays tasks */}
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate("ext_notes", {
-                          cur_course: temp_course.course,
-                        })
-                      }
-                    >
+                    <TouchableOpacity>
                       <View className="  flex basis-3/5 w-11/12 justify-center between items-center  ">
                         <View className="basis-full  flex flex-row items-center ">
                           <View className="justify-start mr-3">
                             <Feather name="book" size={24} color="black" />
                           </View>
                           <View className="basis-4/5 w-4/5 justify-start">
-                            <Text className="text-xl">
-                              {temp_course.course}
-                            </Text>
+                            <Text className="text-xl">{temp_note.name}</Text>
                           </View>
                           <View className="justify-start mr-3">
                             <AntDesign name="right" size={15} color="black" />
@@ -169,6 +201,10 @@ const Ext_Activities = ({ route, navigation }) => {
                 placeholderTextColor="#B2ACAC"
                 onChangeText={(text) => set_course(text)}
               />
+              <View className="flex h-10 w-fit justify-center items-start ">
+                <Text className="">{new_file_name}</Text>
+              </View>
+
               <TouchableOpacity
                 style={styles.submitButton}
                 onPress={() => {
@@ -181,12 +217,11 @@ const Ext_Activities = ({ route, navigation }) => {
               <TouchableOpacity
                 style={styles.submitButton}
                 onPress={() => {
-                  submit_form();
-                  uploadImage();
+                  uploadNote(new_file_uri);
                   setModalVisible(false);
                 }}
               >
-                <Text style={styles.submitButtonText}>Add Event</Text>
+                <Text style={styles.submitButtonText}>Add Note</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
