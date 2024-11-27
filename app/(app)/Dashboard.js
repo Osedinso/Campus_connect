@@ -21,6 +21,7 @@ import NeedAHandScreen from "../Academics/Need_a_hand";
 import HelpAFriendScreen from "../Academics/Help_a_friend";
 import ExtActivities from "../Extra_Tabs/Ext_Activities";
 import ExtNotes from "../Extra_Tabs/Ext_Notes";
+import Opened_Note from "../Extra_Tabs/opened_note"
 import Profile from "../Bottom_Tabs/Profile";
 import HomeHeader from "../../components/HomeHeader";
 
@@ -227,6 +228,11 @@ export default function MyTabs() {
       <Tab.Screen
         name="ExtNotes"
         component={ExtNotes}
+        options={{ tabBarButton: () => null }}
+      />
+      <Tab.Screen
+        name="Opened_note"
+        component={Opened_Note}
         options={{ tabBarButton: () => null }}
       />
     </Tab.Navigator>
