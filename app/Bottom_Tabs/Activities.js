@@ -240,7 +240,6 @@ const Activities = ({ navigation }) => {
     if (item) {
       return item.attendeesCount;
     } else {
-      console.log("No matching activity found");
       return null;
     }
   }

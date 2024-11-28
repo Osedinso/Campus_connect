@@ -10,7 +10,6 @@ import {
   TextInput,
   StyleSheet,
 } from 'react-native';
-import HomeHeader from '../../components/HomeHeader';
 
 const QuickExam = () => {
   const [inputText, setInputText] = useState('');
@@ -191,7 +190,6 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
 
   return (
     <View style={styles.container}>
-      <HomeHeader />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.inputSection}>
           <Text style={styles.title}>Quick Exam Generator</Text>
