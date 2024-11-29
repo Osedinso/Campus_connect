@@ -1,3 +1,4 @@
+// HomeHeader.js
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -6,7 +7,7 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { MenuItem } from './CustomMenuItems';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/authContext';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRouter } from '@react-navigation/native';
 import { blurhash } from '../utils/common';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -14,7 +15,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { storage, db } from '../firebaseConfig';
 
 export default function HomeHeader() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserData } = useAuth();
   const { top } = useSafeAreaInsets();
   const navigation = useNavigation();
   const [uploading, setUploading] = useState(false);
@@ -22,7 +23,15 @@ export default function HomeHeader() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      const result = await logout();
+      if (!result.success) {
+        Alert.alert('Logout Error', result.msg || 'Failed to logout');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'An unexpected error occurred');
+    }
   };
 
   const navigateToAcademics = () => {
@@ -31,75 +40,46 @@ export default function HomeHeader() {
 
   const uploadImageToFirebase = async (uri) => {
     try {
-      console.log('Starting upload process...');
-      console.log('User object:', user);
-  
-      if (!user || !user.uid) {
-        throw new Error('User is not authenticated or UID is missing');
+      if (!user?.uid) {
+        throw new Error('User is not authenticated');
       }
-  
-      // Use XMLHttpRequest to fetch the image
+
       const blob = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          console.log('Blob created successfully');
-          resolve(xhr.response);
-        };
-        xhr.onerror = function (e) {
-          console.error('XHR error:', e);
-          reject(new TypeError('Network request failed'));
-        };
+        xhr.onload = () => resolve(xhr.response);
+        xhr.onerror = (e) => reject(new TypeError('Network request failed'));
         xhr.responseType = 'blob';
         xhr.open('GET', uri, true);
         xhr.send(null);
       });
-  
-      // Create a storage reference
+
       const fileName = `profile_${user.uid}_${Date.now()}.jpg`;
       const storageRef = ref(storage, `profilePictures/${fileName}`);
-  
-      console.log('Uploading to Firebase Storage...');
-  
-      // Create upload task
       const uploadTask = uploadBytesResumable(storageRef, blob);
-  
-      // Return a promise that resolves with the download URL
+
       return new Promise((resolve, reject) => {
         uploadTask.on(
           'state_changed',
           (snapshot) => {
-            // Handle progress
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             setUploadProgress(progress);
-            console.log('Upload is ' + progress + '% done');
           },
           (error) => {
-            // Handle errors
-            console.error('Upload error:', error);
+            blob.close();
             reject(error);
           },
           async () => {
-            // Handle successful upload
             try {
-              console.log('Upload Task Snapshot:', uploadTask.snapshot);
-              console.log('Upload Task Snapshot Ref:', uploadTask.snapshot.ref);
-  
-              // Use storageRef directly
               const downloadURL = await getDownloadURL(storageRef);
-              console.log('File available at', downloadURL);
-  
-              // Close the blob
               blob.close();
-  
-              // Update Firestore
+
               const userRef = doc(db, 'users', user.uid);
               await updateDoc(userRef, {
                 profileUrl: downloadURL,
               });
-  
+              await updateUserData(user.uid); // Update user context
               resolve(downloadURL);
             } catch (error) {
-              console.error('Error getting download URL:', error);
               reject(error);
             }
           }
@@ -119,14 +99,14 @@ export default function HomeHeader() {
         Alert.alert('Permission needed', 'Please grant permission to access your photos');
         return;
       }
-
+  
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: "images",  // Changed this line
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.5,
       });
-
+  
       if (!result.canceled && result.assets[0]) {
         setUploading(true);
         setUploadProgress(0);
@@ -213,7 +193,6 @@ export default function HomeHeader() {
         </Menu>
       </View>
 
-      {/* Profile Picture Modal */}
       <Modal
         visible={profileModalVisible}
         transparent={true}

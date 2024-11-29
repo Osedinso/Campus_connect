@@ -57,7 +57,7 @@ const ActivitiesStack = () => (
   <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
     <Stack.Screen name="ActivitiesScreen" component={ActivitiesScreen} />
     {/* Include extra activities and notes screens */}
-    <Stack.Screen name="ExtActivities" component={ExtActivities} />
+    <Stack.Screen name="ext_activities" component={ExtActivities} />
     <Stack.Screen name="ExtNotes" component={ExtNotes} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
     <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
