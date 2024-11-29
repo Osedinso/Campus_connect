@@ -34,7 +34,6 @@ import { storage, db } from '../../firebaseConfig';
 import { useAuth } from '../../context/authContext';
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign, Feather } from '@expo/vector-icons';
-import HomeHeader from '../../components/HomeHeader';
 import { format } from 'timeago.js';
 
 const Need_a_hand = () => {
@@ -170,7 +169,6 @@ const Need_a_hand = () => {
 
   return (
     <View style={styles.container}>
-      <HomeHeader />
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.innerContainer}>
           {/* Header Section */}

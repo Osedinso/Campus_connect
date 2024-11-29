@@ -25,7 +25,6 @@ import { db } from '../../firebaseConfig';
 import { useAuth } from '../../context/authContext';
 import { Feather } from '@expo/vector-icons';
 import { format } from 'timeago.js';
-import HomeHeader from '../../components/HomeHeader';
 
 const DEFAULT_PROFILE_IMAGE =
   'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
@@ -186,7 +185,6 @@ const Help_a_friend = () => {
 
   return (
     <View style={styles.container}>
-      <HomeHeader />
       <FlatList
         data={requests}
         renderItem={renderItem}

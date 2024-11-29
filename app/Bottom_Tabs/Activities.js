@@ -267,7 +267,7 @@ const Activities = ({ navigation }) => {
               <View style={styles.eventDetails}>
                 <View className="flex-row w-full h-8 items-center justify-between">
                   <Text style={styles.eventTitle}>{temp_event.title}</Text>
-                  {temp_event.userID === user.userId && (
+                  { (
                     <TouchableOpacity
                       onPress={() =>
                         delete_event(

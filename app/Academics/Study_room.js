@@ -23,7 +23,6 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
-import HomeHeader from '../../components/HomeHeader';
 
 const Activites = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -80,7 +79,6 @@ const Activites = ({ navigation }) => {
   return (
     <View className="flex h-screen bg-white">
       {/* This is the top nav bar  */}
-      <HomeHeader />
       <ScrollView className="flex basis-4/5 bg-white ">
         {/* This is the welcome Text and date */}
         <View className="basis-1/4 w-screen flex justify-center items-center ">

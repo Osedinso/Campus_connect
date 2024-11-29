@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
   TextInput,
   StyleSheet,
+  Alert,
 } from 'react-native';
-import HomeHeader from '../../components/HomeHeader';
+import * as DocumentPicker from 'expo-document-picker';
 
 const QuickExam = () => {
   const [inputText, setInputText] = useState('');
+  const [notesUploaded, setNotesUploaded] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,12 +24,73 @@ const QuickExam = () => {
   const [questionCount, setQuestionCount] = useState(5);
 
   useEffect(() => {
-    console.log('questions state updated:', questions);
+    console.log('Questions state updated:', questions);
   }, [questions]);
 
+  const handleFileUpload = async () => {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: ['text/plain', 'text/markdown'],
+      });
+
+      if (!res.canceled && res.assets && res.assets.length > 0) {
+        const asset = res.assets[0];
+
+        // Read the file content
+        const readFile = () =>
+          new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', asset.uri, true);
+            xhr.responseType = 'text';
+
+            xhr.onload = function () {
+              if (xhr.status === 200) {
+                resolve(xhr.responseText);
+              } else {
+                reject(new Error('Failed to load file'));
+              }
+            };
+
+            xhr.onerror = function () {
+              reject(new Error('Failed to load file'));
+            };
+
+            xhr.send();
+          });
+
+        try {
+          const content = await readFile();
+
+          if (!content) {
+            setError('No content could be read from the file.');
+            return;
+          }
+
+          // Clean the content
+          const cleanedContent = content
+            .replace(/\ufffd/g, '') // Remove replacement characters
+            .replace(/[^\x20-\x7E\n]/g, '') // Keep only printable ASCII and newlines
+            .trim();
+
+          setInputText(cleanedContent);
+          setNotesUploaded(true);
+          setError(null);
+
+          Alert.alert('Success', 'File uploaded successfully!', [{ text: 'OK' }]);
+        } catch (readError) {
+          console.error('Read error:', readError);
+          setError('Unable to read file content. Please try another file.');
+        }
+      }
+    } catch (err) {
+      console.error('Document picker error:', err);
+      setError('An error occurred while selecting the file. Please try again.');
+    }
+  };
+
   const generateQuestions = async () => {
-    if (!inputText.trim()) {
-      setError('Please enter some text');
+    if (!inputText.trim() && !notesUploaded) {
+      setError('Please enter some text or upload a file.');
       return;
     }
 
@@ -37,16 +100,14 @@ const QuickExam = () => {
     setIsSubmitted(false);
 
     try {
-      const response = await fetch(
-        'https://chatcompletion-fv2fp2wjea-uc.a.run.app',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: `Generate ${questionCount} multiple choice questions based on this text: "${inputText}"
-            
+      const response = await fetch('https://chatcompletion-fv2fp2wjea-uc.a.run.app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `Generate ${questionCount} multiple choice questions based on this text: "${inputText}"
+          
 Format EXACTLY like this example:
 1. [Question text here]
 A) [First option]
@@ -59,29 +120,20 @@ Answer: [Correct letter]
 [And so on...]
 
 Make sure each question has exactly 4 options labeled A) B) C) D) and clearly state the correct answer after each question with "Answer: [letter]"`,
-          }),
-        }
-      );
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error response from server:', errorData);
-        throw new Error(
-          errorData.error ||
-            'An error occurred while generating questions'
-        );
+        throw new Error(errorData.error || 'An error occurred while generating questions');
       }
 
       const data = await response.json();
-      console.log('Raw AI Response:', data.aiResponse);
       const parsedQuestions = parseGPTResponse(data.aiResponse);
-      console.log('Parsed Questions:', parsedQuestions);
       setQuestions(parsedQuestions);
     } catch (error) {
-      console.error('Error calling chatCompletion function:', error);
-      setError(
-        error.message || 'An error occurred while generating questions'
-      );
+      console.error('Error generating questions:', error);
+      setError(error.message || 'An error occurred while generating questions');
     } finally {
       setLoading(false);
     }
@@ -126,7 +178,6 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
       questions.push(currentQuestion);
     }
 
-    console.log('Parsed questions:', questions);
     return questions;
   };
 
@@ -189,19 +240,60 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
     );
   };
 
+  const renderFileUploadSection = () => (
+    <View style={styles.uploadContainer}>
+      <View style={styles.uploadButtonContainer}>
+        <TouchableOpacity style={styles.uploadButton} onPress={handleFileUpload}>
+          <Text style={styles.uploadButtonText}>
+            {notesUploaded ? 'Change File' : 'Upload Notes'}
+          </Text>
+        </TouchableOpacity>
+
+        {notesUploaded && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={() => {
+              setInputText('');
+              setNotesUploaded(false);
+              setError(null);
+            }}
+          >
+            <Text style={styles.clearButtonText}>Clear</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {notesUploaded ? (
+        <Text style={styles.notesUploadedText}>Notes uploaded successfully.</Text>
+      ) : (
+        <>
+          <Text style={styles.orText}>OR</Text>
+
+          <TextInput
+            multiline
+            numberOfLines={6}
+            value={inputText}
+            onChangeText={(text) => {
+              setInputText(text);
+              setError(null);
+            }}
+            placeholder="Enter your notes here to generate questions..."
+            style={styles.textInput}
+          />
+        </>
+      )}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <HomeHeader />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.inputSection}>
           <Text style={styles.title}>Quick Exam Generator</Text>
 
           <View style={styles.inputContainer}>
-            {/* Question Count Selector */}
             <View style={styles.questionCountContainer}>
-              <Text style={styles.questionCountLabel}>
-                Number of Questions
-              </Text>
+              <Text style={styles.questionCountLabel}>Number of Questions</Text>
               <View style={styles.questionCountButtonsContainer}>
                 {[3, 5, 7, 10].map((count) => (
                   <TouchableOpacity
@@ -225,14 +317,7 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
               </View>
             </View>
 
-            <TextInput
-              multiline
-              numberOfLines={6}
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder="Enter your text here to generate questions..."
-              style={styles.textInput}
-            />
+            {renderFileUploadSection()}
 
             {error && (
               <View style={styles.errorContainer}>
@@ -242,10 +327,10 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
 
             <TouchableOpacity
               onPress={generateQuestions}
-              disabled={loading || !inputText.trim()}
+              disabled={loading || (!inputText.trim() && !notesUploaded)}
               style={[
                 styles.generateButton,
-                (loading || !inputText.trim()) && styles.disabledButton,
+                (loading || (!inputText.trim() && !notesUploaded)) && styles.disabledButton,
               ]}
             >
               {loading ? (
@@ -256,9 +341,7 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
                   </Text>
                 </View>
               ) : (
-                <Text style={styles.buttonText}>
-                  Generate {questionCount} Questions
-                </Text>
+                <Text style={styles.buttonText}>Generate {questionCount} Questions</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -273,9 +356,7 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
                   {index + 1}. {question.question}
                 </Text>
                 <View style={styles.optionsContainer}>
-                  {question.options.map((option) =>
-                    renderOption(option, index, question)
-                  )}
+                  {question.options.map((option) => renderOption(option, index, question))}
                 </View>
                 {isSubmitted && (
                   <Text
@@ -294,25 +375,18 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
               </View>
             ))}
 
-            {Object.keys(selectedAnswers).length === questions.length &&
-              !isSubmitted && (
-                <TouchableOpacity
-                  style={styles.submitButton}
-                  onPress={handleSubmit}
-                >
-                  <Text style={styles.buttonText}>Submit Answers</Text>
-                </TouchableOpacity>
-              )}
+            {Object.keys(selectedAnswers).length === questions.length && !isSubmitted && (
+              <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.buttonText}>Submit Answers</Text>
+              </TouchableOpacity>
+            )}
 
             {isSubmitted && (
               <View style={styles.resultsContainer}>
                 <Text style={styles.scoreText}>
                   Score: {getScore()} out of {questions.length}
                 </Text>
-                <TouchableOpacity
-                  style={styles.resetButton}
-                  onPress={handleReset}
-                >
+                <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
                   <Text style={styles.buttonText}>Try Again</Text>
                 </TouchableOpacity>
               </View>
@@ -325,9 +399,10 @@ Make sure each question has exactly 4 options labeled A) B) C) D) and clearly st
 };
 
 const styles = StyleSheet.create({
+  // ... [Include all your styles here, updated as needed]
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6', // Tailwind gray-100
+    backgroundColor: '#F3F4F6',
   },
   content: {
     padding: 16,
@@ -338,18 +413,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    // Shadow for iOS
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    // Elevation for Android
     elevation: 3,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#1F2937', // Tailwind gray-800
-    marginBottom: 16,
+    color: '#1F2937',
+    marginBottom: 20,
     textAlign: 'center',
   },
   inputContainer: {
@@ -359,9 +432,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   questionCountLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
-    color: '#374151', // Tailwind gray-700
+    color: '#374151',
     marginBottom: 8,
   },
   questionCountButtonsContainer: {
@@ -370,14 +443,14 @@ const styles = StyleSheet.create({
   },
   questionCountButton: {
     flex: 1,
-    backgroundColor: '#E5E7EB', // Tailwind gray-200
+    backgroundColor: '#E5E7EB',
     paddingVertical: 10,
     borderRadius: 8,
     marginHorizontal: 4,
     alignItems: 'center',
   },
   questionCountButtonActive: {
-    backgroundColor: '#3B82F6', // Tailwind blue-500
+    backgroundColor: '#3B82F6',
   },
   questionCountButtonText: {
     fontSize: 16,
@@ -387,36 +460,81 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '500',
   },
+  uploadContainer: {
+    marginBottom: 16,
+  },
+  uploadButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  uploadButton: {
+    backgroundColor: '#3B82F6',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  uploadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  clearButton: {
+    backgroundColor: '#EF4444',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  clearButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  orText: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
   textInput: {
     borderWidth: 1,
-    borderColor: '#D1D5DB', // Tailwind gray-300
+    borderColor: '#D1D5DB',
     borderRadius: 8,
     padding: 12,
     textAlignVertical: 'top',
-    backgroundColor: '#F9FAFB', // Tailwind gray-50
+    backgroundColor: '#F9FAFB',
     minHeight: 120,
     fontSize: 16,
     color: '#374151',
+    width: '100%',
+  },
+  notesUploadedText: {
+    fontSize: 16,
+    color: '#10B981',
+    textAlign: 'center',
+    marginBottom: 12,
   },
   errorContainer: {
-    backgroundColor: '#FEE2E2', // Tailwind red-100
+    backgroundColor: '#FEE2E2',
     borderRadius: 8,
     padding: 12,
     marginTop: 8,
   },
   errorText: {
-    color: '#B91C1C', // Tailwind red-700
+    color: '#B91C1C',
     fontSize: 14,
   },
   generateButton: {
-    backgroundColor: '#3B82F6', // Tailwind blue-500
+    backgroundColor: '#10B981',
     padding: 16,
     borderRadius: 8,
     marginTop: 16,
     alignItems: 'center',
   },
   disabledButton: {
-    backgroundColor: '#9CA3AF', // Tailwind gray-400
+    backgroundColor: '#9CA3AF',
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -432,34 +550,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
-    // Shadow for iOS
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    // Elevation for Android
     elevation: 3,
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#1F2937', // Tailwind gray-800
+    color: '#1F2937',
     marginBottom: 16,
     textAlign: 'center',
   },
   questionCard: {
-    backgroundColor: '#F9FAFB', // Tailwind gray-50
+    backgroundColor: '#F9FAFB',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB', // Tailwind gray-200
+    borderColor: '#E5E7EB',
   },
   questionText: {
     fontSize: 18,
     fontWeight: '500',
     marginBottom: 12,
-    color: '#111827', // Tailwind gray-900
+    color: '#111827',
   },
   optionsContainer: {
     marginBottom: 8,
@@ -470,34 +586,34 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#D1D5DB', // Tailwind gray-300
+    borderColor: '#D1D5DB',
   },
   selectedOption: {
-    backgroundColor: '#DBEAFE', // Tailwind blue-100
-    borderColor: '#3B82F6', // Tailwind blue-500
+    backgroundColor: '#DBEAFE',
+    borderColor: '#3B82F6',
   },
   correctOption: {
-    backgroundColor: '#D1FAE5', // Tailwind green-100
-    borderColor: '#10B981', // Tailwind green-500
+    backgroundColor: '#D1FAE5',
+    borderColor: '#10B981',
   },
   incorrectOption: {
-    backgroundColor: '#FEE2E2', // Tailwind red-100
-    borderColor: '#EF4444', // Tailwind red-500
+    backgroundColor: '#FEE2E2',
+    borderColor: '#EF4444',
   },
   optionText: {
     fontSize: 16,
     color: '#374151',
   },
   selectedOptionText: {
-    color: '#1E40AF', // Tailwind blue-800
+    color: '#1E40AF',
     fontWeight: '500',
   },
   correctOptionText: {
-    color: '#065F46', // Tailwind green-800
+    color: '#065F46',
     fontWeight: '500',
   },
   incorrectOptionText: {
-    color: '#B91C1C', // Tailwind red-700
+    color: '#B91C1C',
     fontWeight: '500',
   },
   feedbackText: {
@@ -507,13 +623,13 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   correctFeedback: {
-    color: '#10B981', // Tailwind green-500
+    color: '#10B981',
   },
   incorrectFeedback: {
-    color: '#EF4444', // Tailwind red-500
+    color: '#EF4444',
   },
   submitButton: {
-    backgroundColor: '#10B981', // Tailwind green-500
+    backgroundColor: '#3B82F6',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -526,11 +642,11 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1F2937', // Tailwind gray-800
+    color: '#1F2937',
     marginBottom: 16,
   },
   resetButton: {
-    backgroundColor: '#3B82F6', // Tailwind blue-500
+    backgroundColor: '#10B981',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
