@@ -18,9 +18,11 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { db } from "../../firebaseConfig";
 import {
+  query,
   addDoc,
   collection,
   doc,
+  where,
   deleteDoc,
   onSnapshot,
   getDocs,
@@ -48,18 +50,22 @@ const Ext_Activities = ({ route, navigation }) => {
     cur_description,
     cur_fee,
   } = route.params;
+  const [tbd_task, set_tbd_task] = useState([]);
   const [attendee, setAttendee] = useState([]);
-  const [attending, setAttending] = useState(false);
+  const [attending, setAttending] = useState();
   const { user } = useAuth();
   async function attend_event() {
-    
     try {
       const userRef = doc(db, "Activities", cur_event_id);
       const activityRef = collection(userRef, "Attendees");
       const existingAttendeesSnapshot = await getDocs(activityRef);
-      const duplicate = existingAttendeesSnapshot.docs.some(
+      const isDuplicateAttendee = existingAttendeesSnapshot.docs.some(
         (doc) => doc.data().email === user.email
       );
+      if (isDuplicateAttendee) {
+        alert("You have already registered for this event.");
+        return;
+      }
 
       await addDoc(activityRef, {
         name: user.username,
@@ -69,14 +75,15 @@ const Ext_Activities = ({ route, navigation }) => {
       const cur_userRef = doc(db, "users", user.userId);
       const cur_activityRef = collection(cur_userRef, "Activities");
       await addDoc(cur_activityRef, {
+        event_id: cur_event_id,
         title: cur_title,
         start_hr: cur_start_hr,
         start_min: cur_start_min,
         start_amPm: cur_start_amPm,
-        day:cur_day,
-        day_num:cur_date,
-        month:cur_month,
-        year:cur_year,
+        day: cur_day,
+        day_num: cur_date,
+        month: cur_month,
+        year: cur_year,
       });
 
       alert("Name added to event successfully!");
@@ -87,25 +94,50 @@ const Ext_Activities = ({ route, navigation }) => {
   async function unAttend_event() {
     const userRef = doc(db, "Activities", cur_event_id);
     const activityRef = collection(userRef, "Attendees");
-
     try {
       // Fetch all attendees
       const existingAttendeesSnapshot = await getDocs(activityRef);
-
-      // Find the document for the current user
       const userDoc = existingAttendeesSnapshot.docs.find(
         (doc) => doc.data().email === user.email
       );
+      // Find the document for the current user
 
       if (userDoc) {
         // Delete the user's document
         await deleteDoc(userDoc.ref);
+        delete_from_user();
+
         alert("You have been removed from the attendee list.");
       } else {
         alert("You are not registered for this event.");
       }
     } catch (error) {
       console.error("Error removing user: ", error);
+    }
+  }
+  async function delete_from_user() {
+    try {
+      // Reference to the user's Activities collection
+      const userRef = doc(db, "users", user.userId);
+      const eventsRef = collection(userRef, "Activities");
+
+      // Retrieve all documents from the Activities collection
+      const snapshot = await getDocs(eventsRef);
+      const eventsList = snapshot.docs.map((doc) => ({
+        user_activity_id: doc.id, // Firestore document ID
+        campus_activity_id: doc.data().event_id, // Event ID from document data
+      }));
+
+      // Loop through tasks and delete the matching document
+      for (const temp_task of eventsList) {
+        if (temp_task.campus_activity_id === cur_event_id) {
+          // Reference to the specific document to delete
+          const taskRef = doc(eventsRef, temp_task.user_activity_id);
+          await deleteDoc(taskRef); // Delete the document
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting activity:", error);
     }
   }
 
@@ -124,6 +156,8 @@ const Ext_Activities = ({ route, navigation }) => {
           attendee.forEach((temp_attendee) => {
             if (user.email == temp_attendee.email) {
               setAttending(true);
+            } else {
+              setAttending(false);
             }
           });
         });
@@ -222,7 +256,6 @@ const Ext_Activities = ({ route, navigation }) => {
             <View className="mt-3 mb-3 h-fit flex justify-center ">
               <TouchableOpacity
                 onPress={() => {
-                  console.log("Show Users");
                   setModalVisible(!modalVisible);
                 }}
               >
@@ -254,25 +287,35 @@ const Ext_Activities = ({ route, navigation }) => {
             {/* Event Attend Button */}
             <View className="h-14 flex items-center">
               <View className="items-center w-36 bg-[#002b84] rounded-3xl">
-                <TouchableOpacity
-                  onPress={() => {
-                    //Handel on press action
-                    if (!attending) {
-                      attend_event();
-                      setAttending(true);
-                    } else {
-                      unAttend_event();
-                      setAttending(false);
-                    }
-                  }}
-                  className="w-full justify-center items-center"
-                >
-                  <View className="h-12 justify-center">
-                    <Text className="text-xl font-normal text-white ">
-                      {attending ? "Un-Attend" : "Attend"}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                {attending == false ? (
+                  <TouchableOpacity
+                    onPress={async () => {
+                      await attend_event(); // Wait for the event to be attended
+                      setAttending(true)
+                    }}
+                    className="w-full justify-center items-center"
+                  >
+                    <View className="h-12 justify-center">
+                      <Text className="text-xl font-normal text-white">
+                        Attend
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={async () => {
+                      await unAttend_event(); // Wait for the event to be unattended
+                      setAttending(false)
+                    }}
+                    className="w-full justify-center items-center"
+                  >
+                    <View className="h-12 justify-center">
+                      <Text className="text-xl font-normal text-white">
+                        Un-Attend
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </View>

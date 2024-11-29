@@ -21,7 +21,13 @@ import {
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { db } from "../../firebaseConfig";
-import { addDoc, collection, doc, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  deleteDoc,
+} from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
 
 const App = ({ navigation }) => {
@@ -94,7 +100,7 @@ const App = ({ navigation }) => {
   ];
 
   const [markedDates, setMarkedDates] = useState({});
-  const[temp_selected_day, set_temp_selected_day] = useState({})
+  const [temp_selected_day, set_temp_selected_day] = useState({});
 
   function find_day(day, month, year) {
     const date = new Date(year, month - 1, day);
@@ -108,7 +114,6 @@ const App = ({ navigation }) => {
     );
     setEvents(updatedEvents);
   };
-  
 
   async function submit_form() {
     const month = months.find((month) => month.label === month_value);
@@ -141,6 +146,16 @@ const App = ({ navigation }) => {
       console.error("Error adding course: ", error);
     }
   }
+  async function delete_task(task_tbd) {
+    try {
+      const userRef = doc(db, "users", user.userId);
+      const taskRef = doc(collection(userRef, "Tasks"), task_tbd);
+      await deleteDoc(taskRef);
+      console.log("Event deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting event: ", error);
+    }
+  }
   useEffect(() => {
     const fetchCourses = () => {
       if (user?.userId) {
@@ -151,6 +166,7 @@ const App = ({ navigation }) => {
           // Set up a real-time listener with onSnapshot
           const unsubscribe = onSnapshot(eventsRef, (snapshot) => {
             const eventsList = snapshot.docs.map((doc) => ({
+              id: doc.id,
               title: doc.data().title,
               location: doc.data().location,
               month_value: doc.data().month_value,
@@ -179,8 +195,8 @@ const App = ({ navigation }) => {
     };
 
     const unsubscribe = fetchCourses();
-    return () => unsubscribe && unsubscribe(); 
-  }, []); 
+    return () => unsubscribe && unsubscribe();
+  }, []);
 
   useEffect(() => {
     // Set marked dates when tasked_day is updated
@@ -212,13 +228,13 @@ const App = ({ navigation }) => {
             textDisabledColor: "#d3d3d3",
             arrowColor: "#075eec",
           }}
-          markedDates={{ ...markedDates, ...temp_selected_day}}
+          markedDates={{ ...markedDates, ...temp_selected_day }}
           onDayPress={(day) => {
             set_selected_day(day.day);
             updatedMarkedDates = {
-              [day.dateString]: { selected: true, selectedColor: 'blue' }
+              [day.dateString]: { selected: true, selectedColor: "blue" },
             };
-            set_temp_selected_day(updatedMarkedDates)
+            set_temp_selected_day(updatedMarkedDates);
           }}
         />
         <View style={styles.eventsContainer}>
@@ -236,43 +252,58 @@ const App = ({ navigation }) => {
               events.map((temp_event, index) => {
                 if (selected_day === parseFloat(temp_event.day_value)) {
                   return (
-                    <View key={index} style={styles.eventCard}>
-                      <TouchableOpacity onPress={() => toggleChecked(index)}>
-                        {temp_event.checked ? (
-                          <Feather
-                            name="check-circle"
-                            size={20}
-                            color="black"
-                          />
-                        ) : (
-                          <Feather name="circle" size={20} color="black" />
-                        )}
-                      </TouchableOpacity>
-                      <View style={styles.eventDetails}>
-                        <Text style={styles.eventTitle}>
-                          {temp_event.title}
-                        </Text>
-                        <View style={styles.eventInfo}>
-                          <Ionicons
-                            name="time-outline"
-                            size={15}
-                            color="black"
-                          />
-                          <Text>
-                            {temp_event.day} {temp_event.start_hr_val}:
-                            {temp_event.start_min_val}{" "}
-                            {temp_event.start_ampm_val}
+                    <View
+                      key={index}
+                      className="flex flex-row justify-between border-b  border-[#e0e0e0]"
+                    >
+                      <View style={styles.eventCard}>
+                        <TouchableOpacity onPress={() => toggleChecked(index)}>
+                          {temp_event.checked ? (
+                            <Feather
+                              name="check-circle"
+                              size={20}
+                              color="black"
+                            />
+                          ) : (
+                            <Feather name="circle" size={20} color="black" />
+                          )}
+                        </TouchableOpacity>
+                        <View style={styles.eventDetails}>
+                          <Text style={styles.eventTitle}>
+                            {temp_event.title}
                           </Text>
-                        </View>
-                        <View style={styles.eventInfo}>
-                          <SimpleLineIcons
-                            name="location-pin"
-                            size={15}
-                            color="black"
-                          />
-                          <Text>{temp_event.location}</Text>
+                          <View style={styles.eventInfo}>
+                            <Ionicons
+                              name="time-outline"
+                              size={15}
+                              color="black"
+                            />
+                            <Text>
+                              {temp_event.day}, {temp_event.start_hr_val}:
+                              {temp_event.start_min_val}{" "}
+                              {temp_event.start_ampm_val}
+                            </Text>
+                          </View>
+                          <View style={styles.eventInfo}>
+                            <SimpleLineIcons
+                              name="location-pin"
+                              size={15}
+                              color="black"
+                            />
+                            <Text>{temp_event.location}</Text>
+                          </View>
                         </View>
                       </View>
+
+                      <TouchableOpacity
+                        onPress={() => delete_task(temp_event.id)}
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={15}
+                          color="black"
+                        />
+                      </TouchableOpacity>
                     </View>
                   );
                 }
@@ -424,10 +455,8 @@ const styles = StyleSheet.create({
   },
   eventCard: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "start",
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
   },
   eventDetails: {
     marginLeft: 10,
