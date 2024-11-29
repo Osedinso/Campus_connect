@@ -28,7 +28,9 @@ export default function ChatListItem({ chat, currentUser }) {
 
   const getChatImage = () => {
     if (chat.isGroup) {
-      return chat.groupImage || require('../../../assets/images/default-avatar.png');
+      return chat.groupImage
+        ? { uri: chat.groupImage } // Wrap the groupImage in { uri: ... }
+        : require('../../../assets/images/default-avatar.png');
     }
     if (!currentUser?.userId || !chat.participantDetails) {
       return require('../../../assets/images/default-avatar.png');
