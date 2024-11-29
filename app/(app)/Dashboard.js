@@ -23,6 +23,11 @@ import ExtActivities from "../Extra_Tabs/Ext_Activities";
 import ExtNotes from "../Extra_Tabs/Ext_Notes";
 import Profile from "../Bottom_Tabs/Profile";
 import HomeHeader from "../../components/HomeHeader";
+import ChatHomeScreen from "../Bottom_Tabs/Chat/ChatHomeScreen";
+import ChatRoomScreen from "../Bottom_Tabs/Chat/ChatRoom";
+import NewChatScreen from "../Bottom_Tabs/Chat/NewChat";
+import NewGroup from "../Bottom_Tabs/Chat/NewGroup";
+import ChatRoomHeader from "../../components/ChatRoomHeader";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -70,34 +75,49 @@ const ActivitiesStack = () => (
 // Stack Navigator for Chat Tab
 const ChatStack = () => {
   const { user } = useAuth();
-  const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('userId', '!=', user.userId));
-        const querySnapshot = await getDocs(q);
-        const fetchedUsers = querySnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-        setUsers(fetchedUsers);
-      } catch (error) {
-        console.error("Error fetching users: ", error);
-      }
-    };
-
-    if (user) {
-      fetchUsers();
-    }
-  }, [user]);
-
+  // Remove the users state and useEffect as they're now handled in individual components
   return (
-    <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
-      <Stack.Screen name="ChatScreen">
-        {() => <ChatList users={users} currentUser={user} />}
-      </Stack.Screen>
+    <Stack.Navigator 
+      screenOptions={{ 
+        header: () => <HomeHeader />,
+      }}
+    >
+      <Stack.Screen 
+        name="ChatScreen" 
+        component={ChatHomeScreen}
+        options={{
+          header: () => <HomeHeader />,
+        }}
+      />
+      <Stack.Screen 
+        name="chatRoom"
+        component={ChatRoomScreen}
+        options={({ route }) => ({
+        header: () => (
+        <ChatRoomHeader 
+          chatDetails={route.params.chatDetails}
+          currentUser={user} // Pass from your auth context
+        />
+      ),
+      })}
+      />
+      <Stack.Screen 
+        name="newChat" 
+        component={NewChatScreen}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'New Chat',
+        }}
+      />
+      <Stack.Screen
+          name="newGroup"
+          component={NewGroup}
+          options={{
+            presentation: 'modal',
+            headerTitle: 'Create Group'
+          }}
+        />
       <Stack.Screen name="Academics" component={AcademicsScreen} />
       <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
       <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />

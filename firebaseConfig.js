@@ -6,18 +6,16 @@ import { getFirestore, collection } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 import { getStorage } from "firebase/storage";
 
-
 const firebaseConfig = {
   apiKey: "AIzaSyCx1AoQEcPkMgydHZ6qsJCBDLKDfnoPePI",
   authDomain: "campusconnect-1ffa8.firebaseapp.com",
   projectId: "campusconnect-1ffa8",
-  storageBucket:  "campusconnect-1ffa8.firebasestorage.app",
+  storageBucket: "campusconnect-1ffa8.firebasestorage.app",
   messagingSenderId: "1005578659450",
   appId: "1:1005578659450:web:d67bdd79b09abab15e7dc3",
   measurementId: "G-655KRD5617"
 };
 
-export default firebaseConfig;
 // Initialize Firebase only if it hasn't been initialized
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
@@ -34,13 +32,18 @@ try {
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const functions = getFunctions(app, 'us-central1');
-const usersRef = collection(db, 'users');
-const roomRef = collection(db, 'rooms');
-// Add this line with your other exports
-const postsRef = collection(db, 'posts');
 const storage = getStorage(app);
 
+// Collection references
+const usersRef = collection(db, 'users');
+const roomRef = collection(db, 'rooms');
+const postsRef = collection(db, 'posts');
+const chatsRef = collection(db, 'chats');
+const groupsRef = collection(db, 'groups');
+const messagesRef = (chatId) => collection(db, 'chats', chatId, 'messages');
 
+// Helper function to get chat messages subcollection
+const getChatMessages = (chatId) => collection(db, 'chats', chatId, 'messages');
 
 export {
   auth,
@@ -49,5 +52,9 @@ export {
   usersRef,
   roomRef,
   storage,
-  postsRef
+  postsRef,
+  chatsRef,
+  groupsRef,
+  messagesRef,
+  getChatMessages
 };
