@@ -11,11 +11,12 @@ import {
     KeyboardAvoidingView,
   } from "react-native";
   import ColorPicker from "react-native-wheel-color-picker";
-  
   import React, { useState, useEffect } from "react";
   import AntDesign from "@expo/vector-icons/AntDesign";
   import FontAwesome from "@expo/vector-icons/FontAwesome";
   import { db } from "../../firebaseConfig";
+  import ReactDOM from 'react-dom';
+  
   import {
     addDoc,
     collection,
@@ -25,21 +26,25 @@ import {
   import { useAuth } from "../../context/authContext";
   import HomeHeader from '../../components/HomeHeader';
   
-  const opened_note = ({ navigation }) => {
-    
+  const Opened_note = ({ route, navigation }) => {
+    const {
+      cur_note_uri
+    } = route.params;
     return (
       <View className="flex h-screen bg-white">
         {/* This is the top nav bar  */}
         <HomeHeader />
         <ScrollView className="flex basis-4/5 bg-white ">
-         
+          <View className="w-20 h-20 bg-slate-600">
+            <Text>{cur_note_uri}</Text>
+          </View>
         </ScrollView>
         
       </View>
     );
   };
   
-  export default opened_note;
+  export default Opened_note;
   
   const styles = StyleSheet.create({
     floatingButton: {

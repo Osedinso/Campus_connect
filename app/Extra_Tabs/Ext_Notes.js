@@ -154,7 +154,9 @@ const Ext_Activities = ({ route, navigation }) => {
                     className="flex  basis-20 rounded-xl  justify-center items-center border-solid border border-[#989898] overflow-hidden mb-5"
                   >
                     {/* Tasks view below shows the 2 task in todays tasks */}
-                    <TouchableOpacity  onPress={() => navigation.navigate("Opened_note")}>
+                    <TouchableOpacity  onPress={() => navigation.navigate("Opened_note", 
+                      {cur_note_uri:temp_note.url}
+                    )}>
                       <View className="  flex basis-3/5 w-11/12 justify-center between items-center  ">
                         <View className="basis-full  flex flex-row items-center ">
                           <View className="justify-start mr-3">

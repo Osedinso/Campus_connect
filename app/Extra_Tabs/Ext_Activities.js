@@ -17,7 +17,14 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { db } from "../../firebaseConfig";
-import { addDoc, collection, doc, onSnapshot, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  deleteDoc,
+  onSnapshot,
+  getDocs,
+} from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
 
 const Ext_Activities = ({ route, navigation }) => {
@@ -42,8 +49,10 @@ const Ext_Activities = ({ route, navigation }) => {
     cur_fee,
   } = route.params;
   const [attendee, setAttendee] = useState([]);
+  const [attending, setAttending] = useState(false);
   const { user } = useAuth();
   async function attend_event() {
+    
     try {
       const userRef = doc(db, "Activities", cur_event_id);
       const activityRef = collection(userRef, "Attendees");
@@ -52,34 +61,71 @@ const Ext_Activities = ({ route, navigation }) => {
         (doc) => doc.data().email === user.email
       );
 
-      if (duplicate) {
-        alert("You have already registered for this event.");
-        return;
-      }
-
       await addDoc(activityRef, {
         name: user.username,
         email: user.email,
       });
-      alert("Course added successfully!");
+
+      const cur_userRef = doc(db, "users", user.userId);
+      const cur_activityRef = collection(cur_userRef, "Activities");
+      await addDoc(cur_activityRef, {
+        title: cur_title,
+        start_hr: cur_start_hr,
+        start_min: cur_start_min,
+        start_amPm: cur_start_amPm,
+        day:cur_day,
+        day_num:cur_date,
+        month:cur_month,
+        year:cur_year,
+      });
+
+      alert("Name added to event successfully!");
     } catch (error) {
       console.error("Error adding course: ", error);
     }
   }
+  async function unAttend_event() {
+    const userRef = doc(db, "Activities", cur_event_id);
+    const activityRef = collection(userRef, "Attendees");
+
+    try {
+      // Fetch all attendees
+      const existingAttendeesSnapshot = await getDocs(activityRef);
+
+      // Find the document for the current user
+      const userDoc = existingAttendeesSnapshot.docs.find(
+        (doc) => doc.data().email === user.email
+      );
+
+      if (userDoc) {
+        // Delete the user's document
+        await deleteDoc(userDoc.ref);
+        alert("You have been removed from the attendee list.");
+      } else {
+        alert("You are not registered for this event.");
+      }
+    } catch (error) {
+      console.error("Error removing user: ", error);
+    }
+  }
 
   useEffect(() => {
-    const fetchCourses = () => {
+    const fetchAttendees = () => {
       try {
         const userRef = doc(db, "Activities", cur_event_id);
         const activityRef = collection(userRef, "Attendees"); // Reference the user document
 
-        // Set up a real-time listener with onSnapshot
         const unsubscribe = onSnapshot(activityRef, (snapshot) => {
           const ActivitiesList = snapshot.docs.map((doc) => ({
             name: doc.data().name,
             email: doc.data().email,
           }));
           setAttendee(ActivitiesList);
+          attendee.forEach((temp_attendee) => {
+            if (user.email == temp_attendee.email) {
+              setAttending(true);
+            }
+          });
         });
 
         // Clean up the listener when the component unmounts
@@ -89,9 +135,9 @@ const Ext_Activities = ({ route, navigation }) => {
       }
     };
 
-    const unsubscribe = fetchCourses();
+    const unsubscribe = fetchAttendees();
     return () => unsubscribe && unsubscribe(); // Clean up the listener
-  });
+  }, [user.userId]);
 
   const [modalVisible, setModalVisible] = useState(true);
   return (
@@ -211,13 +257,19 @@ const Ext_Activities = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     //Handel on press action
-                    attend_event();
+                    if (!attending) {
+                      attend_event();
+                      setAttending(true);
+                    } else {
+                      unAttend_event();
+                      setAttending(false);
+                    }
                   }}
                   className="w-full justify-center items-center"
                 >
                   <View className="h-12 justify-center">
                     <Text className="text-xl font-normal text-white ">
-                      Attend
+                      {attending ? "Un-Attend" : "Attend"}
                     </Text>
                   </View>
                 </TouchableOpacity>
