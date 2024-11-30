@@ -15,6 +15,7 @@ import {
   Keyboard,
   Dimensions,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../../context/authContext';
@@ -29,11 +30,17 @@ import {
   updateDoc,
   doc,
   serverTimestamp,
-  getDoc 
+  getDoc,
 } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// Import OpenAI API
+import { Configuration, OpenAIApi } from 'openai';
+
+// Import environment variables (ensure you have set up react-native-dotenv)
+import { OPENAI_API_KEY } from '@env';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MESSAGE_MAX_WIDTH = SCREEN_WIDTH * 0.75;
@@ -44,11 +51,17 @@ export default function ChatRoom({ route }) {
   const [chatDetails, setChatDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const navigation = useNavigation();
-  const { chatId } = route.params;
+  const { chatId, isAIChat = false, initialMessage } = route.params;
   const { user } = useAuth();
   const flatListRef = useRef(null);
   const inputRef = useRef(null);
+
+  // AI Assistant Constants
+  const AI_USER_ID = 'ai_assistant';
+  const AI_USERNAME = 'AI Assistant';
+  const AI_PROFILE_URL = '../../../assets/images/default-avatar.png'; // Replace with your AI avatar URL
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
@@ -107,37 +120,110 @@ export default function ChatRoom({ route }) {
     return () => unsubscribe();
   }, [chatId]);
 
-  const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  // Handle initial message if provided (from the search bar)
+  useEffect(() => {
+    if (isAIChat && initialMessage) {
+      sendMessage(initialMessage);
+    }
+  }, [isAIChat, initialMessage]);
+
+  const sendMessage = async (messageText) => {
+    const text = messageText || inputMessage.trim();
+    if (!text) return;
+
+    setInputMessage('');
+    setIsSending(true);
 
     try {
       const messagesCollectionRef = collection(db, 'chats', chatId, 'messages');
       const messageData = {
-        text: inputMessage.trim(),
+        text: text,
         userId: user.userId,
         username: user.username,
         timestamp: serverTimestamp(),
         type: 'text'
       };
 
+      // Add the user's message to Firestore
       await addDoc(messagesCollectionRef, messageData);
 
       const chatDocRef = doc(db, 'chats', chatId);
       await updateDoc(chatDocRef, {
         lastMessage: {
-          text: inputMessage.trim(),
+          text: text,
           userId: user.userId,
           username: user.username
         },
         lastMessageTime: serverTimestamp()
       });
 
-      setInputMessage('');
+      // If this is a chat with the AI assistant, get the AI's response
+      if (isAIChat) {
+        const aiResponse = await getAIResponse(text);
+
+        const aiMessageData = {
+          text: aiResponse,
+          userId: AI_USER_ID, // AI assistant's user ID
+          username: AI_USERNAME,
+          timestamp: serverTimestamp(),
+          type: 'text'
+        };
+
+        // Add the AI's message to Firestore
+        await addDoc(messagesCollectionRef, aiMessageData);
+
+        await updateDoc(chatDocRef, {
+          lastMessage: {
+            text: aiResponse,
+            userId: AI_USER_ID,
+            username: AI_USERNAME
+          },
+          lastMessageTime: serverTimestamp()
+        });
+      }
+
       Keyboard.dismiss();
     } catch (error) {
       console.error('Error sending message:', error);
+      Alert.alert('Error', 'Failed to send message. Please try again.');
+    } finally {
+      setIsSending(false);
     }
   };
+
+  const getAIResponse = async (userMessage) => {
+    try {
+      const response = await fetch('https://chatcompletion-fv2fp2wjea-uc.a.run.app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `You are CampusBot, an AI assistant for Campus Connect, the university's official campus application. Help this user answer this question: ${userMessage}`,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'An error occurred while getting AI response');
+      }
+  
+      const data = await response.json();
+      console.log('AI Response Data:', data);
+  
+      // Access the AI's response from data.aiResponse
+      if (data && data.aiResponse) {
+        const aiMessage = data.aiResponse.trim();
+        return aiMessage;
+      } else {
+        throw new Error('Invalid response format from AI API.');
+      }
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      return 'Sorry, I am having trouble responding at the moment.';
+    }
+  };  
+
 
   const handleImagePick = async () => {
     try {
@@ -198,6 +284,8 @@ export default function ChatRoom({ route }) {
     const showAvatar = !isCurrentUser && 
       (!messages[index + 1] || messages[index + 1].userId !== item.userId);
 
+    const isAIUser = item.userId === AI_USER_ID;
+
     return (
       <View 
         style={[
@@ -209,8 +297,9 @@ export default function ChatRoom({ route }) {
         {showAvatar && !isCurrentUser && (
           <Image
             source={{ 
-              uri: chatDetails?.participantDetails[item.userId]?.profileUrl || 
-                   require('../../../assets/images/default-avatar.png')
+              uri: isAIUser
+                ? chatDetails?.participantDetails[item.userId]?.profileUrl || AI_PROFILE_URL
+                : chatDetails?.participantDetails[item.userId]?.profileUrl || require('../../../assets/images/default-avatar.png')
             }}
             style={styles.avatar}
           />
@@ -297,13 +386,16 @@ export default function ChatRoom({ route }) {
 
         <View style={styles.inputContainer}>
           <View style={styles.inputInnerContainer}>
-            <TouchableOpacity 
-              onPress={handleImagePick}
-              style={styles.imageButton}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="image-outline" size={24} color="#3B82F6" />
-            </TouchableOpacity>
+            {/* Disable image sending in AI chat */}
+            {!isAIChat && (
+              <TouchableOpacity 
+                onPress={handleImagePick}
+                style={styles.imageButton}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="image-outline" size={24} color="#3B82F6" />
+              </TouchableOpacity>
+            )}
 
             <TextInput
               ref={inputRef}
@@ -315,20 +407,24 @@ export default function ChatRoom({ route }) {
             />
 
             <TouchableOpacity
-              onPress={sendMessage}
-              disabled={!inputMessage.trim()}
+              onPress={() => sendMessage()}
+              disabled={!inputMessage.trim() || isSending}
               style={[
                 styles.sendButton,
                 inputMessage.trim() ? styles.sendButtonActive : styles.sendButtonDisabled,
               ]}
               activeOpacity={0.7}
             >
-              <Ionicons 
-                name="send" 
-                size={20} 
-                color="white" 
-                style={{ marginLeft: 2 }}
-              />
+              {isSending ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Ionicons 
+                  name="send" 
+                  size={20} 
+                  color="white" 
+                  style={{ marginLeft: 2 }}
+                />
+              )}
             </TouchableOpacity>
           </View>
         </View>

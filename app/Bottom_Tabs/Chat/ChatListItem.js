@@ -12,6 +12,11 @@ import { AntDesign } from '@expo/vector-icons';
 export default function ChatListItem({ chat, currentUser }) {
   const navigation = useNavigation();
 
+  // Define constants for AI Assistant
+  const AI_USER_ID = 'ai_assistant';
+  const AI_USERNAME = 'AI Assistant';
+  const AI_PROFILE_URL = '../../../assets/images/default-avatar.png'; // Replace with your AI avatar URL
+
   const getChatName = () => {
     if (chat.isGroup) {
       return chat.groupName || 'Group Chat';
@@ -23,13 +28,19 @@ export default function ChatListItem({ chat, currentUser }) {
     const otherParticipant = Object.entries(chat.participantDetails).find(
       ([id]) => id !== currentUser.userId
     );
+
+    // Check if the other participant is the AI Assistant
+    if (otherParticipant?.[0] === AI_USER_ID) {
+      return AI_USERNAME;
+    }
+
     return otherParticipant?.[1]?.username || 'Unknown User';
   };
 
   const getChatImage = () => {
     if (chat.isGroup) {
       return chat.groupImage
-        ? { uri: chat.groupImage } // Wrap the groupImage in { uri: ... }
+        ? { uri: chat.groupImage }
         : require('../../../assets/images/default-avatar.png');
     }
     if (!currentUser?.userId || !chat.participantDetails) {
@@ -38,6 +49,12 @@ export default function ChatListItem({ chat, currentUser }) {
     const otherParticipant = Object.entries(chat.participantDetails).find(
       ([id]) => id !== currentUser.userId
     );
+
+    // Check if the other participant is the AI Assistant
+    if (otherParticipant?.[0] === AI_USER_ID) {
+      return { uri: AI_PROFILE_URL };
+    }
+
     return otherParticipant?.[1]?.profileUrl
       ? { uri: otherParticipant[1].profileUrl }
       : require('../../../assets/images/default-avatar.png');
@@ -75,10 +92,13 @@ export default function ChatListItem({ chat, currentUser }) {
   };
 
   const handlePress = () => {
+    const isAIChat = chat.participants.includes(AI_USER_ID);
+
     navigation.navigate('chatRoom', {
       chatId: chat.id,
       isGroup: chat.isGroup,
       chatDetails: chat,
+      isAIChat: isAIChat, // Pass isAIChat parameter
     });
   };
 
