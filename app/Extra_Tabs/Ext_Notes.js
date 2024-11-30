@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  Image,
   View,
   TouchableOpacity,
   ScrollView,
@@ -16,17 +15,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as DocumentPicker from "expo-document-picker";
-import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, listAll,deleteObject } from "firebase/storage";
 import { storage, db } from "../../firebaseConfig";
 import { useAuth } from "../../context/authContext";
-import * as FileSystem from "expo-file-system";
 
 const Ext_Activities = ({ route, navigation }) => {
   const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [course, set_course] = useState(null);
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const { cur_course } = route.params;
   const [new_file_name, set_new_file_name] = useState(null);
   const [new_file_uri, set_new_file_uri] = useState(null);
@@ -36,13 +32,6 @@ const Ext_Activities = ({ route, navigation }) => {
       note: "CSCI 410",
     },
   ]);
-  function submit_form() {
-    const newCourse = { course };
-
-    set_class_list((prevCourse) => [...prevCourse, newCourse]);
-  }
-  const [file, setFile] = useState(null);
-
   const handleDocumentSelection = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -51,20 +40,22 @@ const Ext_Activities = ({ route, navigation }) => {
       set_new_file_uri(result);
       set_new_file_name(result.assets[0].name);
 
-      console.log("Document selected:", result.assets[0].uri);
     } catch (error) {
       console.error("Error picking document: ", error);
     }
   };
   const uploadNote = async (result) => {
     try {
+      if(course === null){
+        set_course(result.assets[0].name)
+      }
       const response = await fetch(result.assets[0].uri);
       const blob = await response.blob();
 
       // Create a storage reference with user ID and course name
       const storageRef = ref(
         storage,
-        `Notes/${user.userId}/${cur_course}/${result.assets[0].name}`
+        `Notes/${user.userId}/${cur_course}/${course}`
       );
 
       // Upload the blob to Firebase Storage
@@ -86,7 +77,7 @@ const Ext_Activities = ({ route, navigation }) => {
         const url = await getDownloadURL(fileRef);
         return { name: fileRef.name, url };
       });
-
+      
       // Wait for all download URLs to be fetched
       const notes = await Promise.all(notesPromises);
 
@@ -97,20 +88,11 @@ const Ext_Activities = ({ route, navigation }) => {
       console.error("Error fetching notes: ", error);
     }
   };
-  // async function openFile(url) {
-  //   if (!url) {
-  //     console.error("URL is null or undefined");
-  //     return;
-  //   }
-  //   FileViewer.open(url)
-  //     .then(() => {
-  //       console.log("File opened successfully!");
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error opening file:", error);
-  //     });
-  // }
-
+  async function delete_note(note_name){
+    const noteRef = ref(storage, `Notes/${user.userId}/${cur_course}/${note_name}`);
+    await deleteObject(noteRef);
+    await fetchNotes();
+  }
   useEffect(() => {
     fetchNotes();
   }, [cur_course]);
@@ -118,7 +100,7 @@ const Ext_Activities = ({ route, navigation }) => {
   return (
     <SafeAreaView className="flex h-screen bg-white">
       {/* This is the top nav bar  */}
-      <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
+      {/* <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
         <View className=" flex flex-row w-screen justify-start items-center">
           <View className=" h-12 w-24 items-center  justify-center flex flex-row">
             <TouchableOpacity
@@ -130,7 +112,7 @@ const Ext_Activities = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </View> */}
       <ScrollView className="flex basis-4/5 bg-white ">
         {/* This is the welcome Text and date */}
         <View className="basis-1/4 w-screen flex justify-center items-center ">
@@ -165,9 +147,16 @@ const Ext_Activities = ({ route, navigation }) => {
                           <View className="basis-4/5 w-4/5 justify-start">
                             <Text className="text-xl">{temp_note.name}</Text>
                           </View>
-                          <View className="justify-start mr-3">
-                            <AntDesign name="right" size={15} color="black" />
-                          </View>
+                          <TouchableOpacity
+                              onPress={() => delete_note(temp_note.name)}
+                              className="flex items-end "
+                            >
+                              <Ionicons
+                                name="trash-outline"
+                                size={20}
+                                color="black"
+                              />
+                            </TouchableOpacity>
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -245,8 +234,9 @@ const styles = StyleSheet.create({
   floatingButton: {
     position: "absolute",
     right: 20,
-    bottom: 70,
+    bottom: 200,
     width: 60,
+    backgroundColor: "#B2ACAC",
     height: 60,
     borderRadius: 30,
     backgroundColor: "#075eec",

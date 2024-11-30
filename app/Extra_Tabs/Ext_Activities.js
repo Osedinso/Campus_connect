@@ -177,23 +177,17 @@ const Ext_Activities = ({ route, navigation }) => {
   return (
     <View className="flex h-fit bg-white">
       {/* This is the top nav bar  */}
-      <View className=" h-12 flex  w-screen  items-center border-solid border-b bg-white border-gray-400 pb-5">
-        <View className=" flex flex-row w-screen justify-start items-center">
-          <View className=" h-12 w-24 items-center  justify-center flex flex-row">
-            <TouchableOpacity
-              onPress={() => navigation.navigate("ActivitiesScreen")}
-              className=" justify-center items-center flex flex-row "
-            >
-              <Ionicons name="arrow-back-outline" size={24} color="black" />
-              <Text className="ml-3">Back</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      
       <ScrollView className="flex h-full">
         {/* This is the welcome Text and date */}
         <View className="h-screen w-screen flex justify-start items-center">
-          <View className="basis-64 w-screen bg-slate-500 "></View>
+          
+          <Image
+                  source={require("../../assets/images/background image.jpeg")}
+                  className="basis-64 w-screen bg-slate-500 "
+                  resizeMode="fit"
+                  alt="Logo"
+                />
           <View className=" flex flex-col h-5/6 w-11/12 ">
             {/* Event Title */}
             <View className="h-14 ">
@@ -239,14 +233,7 @@ const Ext_Activities = ({ route, navigation }) => {
             </View>
             {/* Event Host */}
             <View className="h-14  flex flex-row">
-              <View className="mr-4">
-                <Image
-                  source={require("../../assets/images/Ellipse 13.jpg")}
-                  className="w-13 h-13"
-                  resizeMode="contain"
-                  alt="Logo"
-                />
-              </View>
+              
               <View>
                 <Text className="font-semibold">Hosted By</Text>
                 <Text>{cur_host}</Text>

@@ -30,9 +30,11 @@ export default function SignUp() {
   const emailRef = useRef('');
   const passwordRef = useRef('');
   const usernameRef = useRef('');
+  const firstNameRef = useRef('');
+  const lastNameRef = useRef('');
 
   const handleRegister = async () => {
-    if (!emailRef.current || !passwordRef.current || !usernameRef.current) {
+    if (!emailRef.current || !passwordRef.current || !usernameRef.current || !firstNameRef.current || !lastNameRef.current) {
       Alert.alert('Sign Up', 'Please fill all the fields!');
       return;
     }
@@ -42,6 +44,8 @@ export default function SignUp() {
       emailRef.current,
       passwordRef.current,
       usernameRef.current,
+      firstNameRef.current,
+      lastNameRef.current,
       null
     );
     setLoading(false);
@@ -81,6 +85,30 @@ export default function SignUp() {
                 onChangeText={(value) => (usernameRef.current = value)}
                 style={styles.input}
                 placeholder="Username"
+                placeholderTextColor="#9CA3AF"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            {/* First Name Input */}
+            <View style={styles.inputWrapper}>
+              <Feather name="user" size={hp(2.7)} color="#6B7280" style={styles.icon} />
+              <TextInput
+                onChangeText={(value) => (firstNameRef.current = value)}
+                style={styles.input}
+                placeholder="First Name"
+                placeholderTextColor="#9CA3AF"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            {/* Last Name Input */}
+            <View style={styles.inputWrapper}>
+              <Feather name="user" size={hp(2.7)} color="#6B7280" style={styles.icon} />
+              <TextInput
+                onChangeText={(value) => (lastNameRef.current = value)}
+                style={styles.input}
+                placeholder="Last Name"
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="none"
                 autoCorrect={false}

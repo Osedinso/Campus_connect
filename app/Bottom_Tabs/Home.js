@@ -108,7 +108,6 @@ const Home = ({ navigation }) => {
                 "-" +
                 doc.data().day_num,
             }));
-
             setActivities(activityList);
             tasks.sort((a, b) => new Date(a.full_date) - new Date(b.full_date));
           }
@@ -129,7 +128,7 @@ const Home = ({ navigation }) => {
       {/* This is the welcome Text and date */}
       <View className="basis-1/4 w-screen flex justify-center items-center ">
         <View className=" flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
-          <Text className=" text-3xl text-left">Hi {user?.username || "Guest"}</Text>
+          <Text className=" text-3xl text-left">Hi {user?.email || "Guest"}</Text>
           <Text className="mt-3 text-sm">{formattedDate}</Text>
         </View>
       </View>
@@ -154,7 +153,7 @@ const Home = ({ navigation }) => {
             <View className="  flex basis-3/5  w-11/12 justify-between pt-3 ">
               {tasks.length === 0 ? (
                 <View className=" h-full flex justify-center items-center">
-                  <Text className=" ">No task today</Text>
+                  <Text className=" ">No Task Today</Text>
                 </View>
               ) : (
                 tasks.slice(0, 2).map((temp_task, index) => (

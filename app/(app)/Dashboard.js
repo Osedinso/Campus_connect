@@ -42,6 +42,8 @@ const HomeStack = () => (
     <Stack.Screen name="HomeScreen" component={HomeScreen} />
     <Stack.Screen name="Profile" component={Profile} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
+    <Stack.Screen name="ExtNotes" component={ExtNotes} />
+    <Stack.Screen name="Opened_note" component={Opened_Note} />
     <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
     <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
     <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
@@ -54,6 +56,7 @@ const CalendarStack = () => (
   <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
     <Stack.Screen name="CalendarScreen" component={CalendarScreen} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
+    <Stack.Screen name="ExtNotes" component={ExtNotes} />
     <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
     <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
     <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
@@ -94,6 +97,7 @@ const ChatStack = () => {
           header: () => <HomeHeader />,
         }}
       />
+      <Stack.Screen name="ExtNotes" component={ExtNotes} />
       <Stack.Screen 
         name="chatRoom"
         component={ChatRoomScreen}

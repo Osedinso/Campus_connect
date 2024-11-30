@@ -13,14 +13,20 @@ import {
 import ColorPicker from "react-native-wheel-color-picker";
 
 import React, { useState, useEffect } from "react";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+
+import {
+  AntDesign,
+  Feather,
+  Ionicons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
 import { db } from "../../firebaseConfig";
 import {
   addDoc,
   collection,
   doc,
   onSnapshot,
+  deleteDoc,
 } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
 
@@ -33,7 +39,6 @@ const Activites = ({ navigation }) => {
     { course: "CSCI 210" },
   ]);
   const { user } = useAuth();
-
 
   async function submit_form() {
     if (user?.userId === "" || !course) return;
@@ -49,22 +54,36 @@ const Activites = ({ navigation }) => {
       console.error("Error adding course: ", error);
     }
   }
+  async function delete_course(course_id) {
+    try {
+      console.log(course_id)
+      // Delete the document
+      const userRef = doc(db, "users", user.userId);
+      const courseRef = doc(collection(userRef, "Courses"), course_id);
+      console.log(courseRef)
+      await deleteDoc(courseRef);
+      console.log("Event deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting event: ", error);
+    }
+  }
   useEffect(() => {
     const fetchCourses = () => {
       if (user?.userId) {
         try {
           const userRef = doc(db, "users", user.userId);
           const coursesRef = collection(userRef, "Courses");
-  
+
           // Set up a real-time listener with onSnapshot
           const unsubscribe = onSnapshot(coursesRef, (snapshot) => {
             const coursesList = snapshot.docs.map((doc) => ({
+              id:doc.id,
               course: doc.data().name,
               color: doc.data().color,
             }));
             set_class_list(coursesList);
           });
-  
+
           // Clean up the listener when the component unmounts
           return unsubscribe;
         } catch (error) {
@@ -72,7 +91,7 @@ const Activites = ({ navigation }) => {
         }
       }
     };
-  
+
     const unsubscribe = fetchCourses();
     return () => unsubscribe && unsubscribe(); // Clean up the listener
   }, [user?.userId]);
@@ -108,20 +127,32 @@ const Activites = ({ navigation }) => {
                           }
                         >
                           <View
-                            className=" flex justify-center items-center w-40 h-40 bg-[#6871FF] rounded-lg border border-gray-400"
+                            className=" flex justify-evenly items-center w-40 h-40 bg-[#6871FF] rounded-lg border border-gray-400"
                             style={{
-                              backgroundColor: temp_course.color ,
+                              backgroundColor: temp_course.color,
                             }}
                           >
-                            <Image
-                              source={require("../../assets/images/study_ico.png")}
-                              className="self-center  w-16 h-16 "
-                              resizeMode="contain"
-                              alt="Logo"
-                            />
-                            <Text className="text-white mt-2 font-bold">
-                              {temp_course.course}
-                            </Text>
+                            <TouchableOpacity
+                              onPress={() => delete_course(temp_course.id)}
+                              className="flex w-4/5 items-end "
+                            >
+                              <Ionicons
+                                name="trash-outline"
+                                size={20}
+                                color="white"
+                              />
+                            </TouchableOpacity>
+                            <View>
+                              <Image
+                                source={require("../../assets/images/study_ico.png")}
+                                className="self-center  w-16 h-16 "
+                                resizeMode="contain"
+                                alt="Logo"
+                              />
+                              <Text className="text-white mt-2 font-bold">
+                                {temp_course.course}
+                              </Text>
+                            </View>
                           </View>
                         </TouchableOpacity>
                       </View>
@@ -141,12 +172,16 @@ const Activites = ({ navigation }) => {
                           onPress={() =>
                             navigation.navigate("ext_notes", {
                               cur_course: temp_course.course,
+                              cur_course_id:temp_course.id
                             })
                           }
                         >
-                          <View className=" flex justify-center items-center w-40 h-40  rounded-lg border border-gray-400"  style={{
-                              backgroundColor: temp_course.color ,
-                            }}>
+                          <View
+                            className=" flex justify-center items-center w-40 h-40  rounded-lg border border-gray-400"
+                            style={{
+                              backgroundColor: temp_course.color,
+                            }}
+                          >
                             <Image
                               source={require("../../assets/images/study_ico.png")}
                               className="self-center  w-16 h-16 "
@@ -232,7 +267,7 @@ const styles = StyleSheet.create({
   floatingButton: {
     position: "absolute",
     right: 20,
-    bottom: 70,
+    bottom: 200,
     width: 60,
     height: 60,
     borderRadius: 30,
