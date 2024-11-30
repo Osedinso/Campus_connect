@@ -237,12 +237,6 @@ export default function MyTabs() {
           tabBarLabel: 'Activities',
         }}
       />
-      {/* Hidden tabs are removed from the Tab.Navigator */}
-      <Tab.Screen
-        name="Opened_note"
-        component={Opened_Note}
-        options={{ tabBarButton: () => null }}
-      />
     </Tab.Navigator>
   );
 }
