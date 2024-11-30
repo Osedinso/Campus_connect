@@ -10,8 +10,10 @@ import {
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
+// Create the AuthContext
 export const AuthContext = createContext();
 
+// AuthContextProvider Component
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // User object
   const [isAuthenticated, setIsAuthenticated] = useState(undefined); // Authentication status
@@ -31,6 +33,8 @@ export const AuthContextProvider = ({ children }) => {
       }
       setLoading(false);
     });
+
+    // Cleanup subscription on unmount
     return unsub;
   }, []);
 
@@ -67,6 +71,27 @@ export const AuthContextProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+    }
+  };
+
+  // Function to update user data (e.g., after profile picture change)
+  const updateUserData = async (userId) => {
+    try {
+      const docRef = doc(db, 'users', userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setUser((prevUser) => ({
+          ...prevUser,
+          username: data.username || prevUser.username,
+          profileUrl: data.profileUrl || prevUser.profileUrl,
+          userId: data.userId || userId,
+        }));
+      } else {
+        console.log('User document does not exist for update');
+      }
+    } catch (error) {
+      console.error('Error updating user data:', error);
     }
   };
 
@@ -146,6 +171,7 @@ export const AuthContextProvider = ({ children }) => {
         login,
         register,
         logout,
+        updateUserData, // Added updateUserData to the context
       }}
     >
       {children}

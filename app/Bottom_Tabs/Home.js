@@ -129,7 +129,7 @@ const Home = ({ navigation }) => {
       {/* This is the welcome Text and date */}
       <View className="basis-1/4 w-screen flex justify-center items-center ">
         <View className=" flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
-          <Text className=" text-3xl text-left">Hi {user.username}</Text>
+          <Text className=" text-3xl text-left">Hi {user?.username || "Guest"}</Text>
           <Text className="mt-3 text-sm">{formattedDate}</Text>
         </View>
       </View>
