@@ -1,15 +1,18 @@
 // screens/Chat/NewChat.js
+
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   FlatList, 
   TouchableOpacity, 
-  Image, 
+  Image,
+  StyleSheet, 
   ActivityIndicator,
-  TextInput 
+  TextInput,
+  Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Changed this line
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../../context/authContext';
 import { 
   collection, 
@@ -17,6 +20,8 @@ import {
   where, 
   getDocs, 
   addDoc, 
+  getDoc, 
+  doc,
   serverTimestamp 
 } from 'firebase/firestore';
 import { db, chatsRef } from '../../../firebaseConfig';
@@ -28,12 +33,13 @@ export default function NewChat() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const { user } = useAuth();
-  const navigation = useNavigation(); // Changed this line
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Function to fetch all users except the current user
   const fetchUsers = async () => {
     try {
       const usersRef = collection(db, 'users');
@@ -48,33 +54,45 @@ export default function NewChat() {
     } catch (error) {
       console.error('Error fetching users:', error);
       setLoading(false);
+      Alert.alert('Error', 'Failed to fetch users. Please try again later.');
     }
   };
 
+  // Function to start a chat with a selected user
   const startChat = async (selectedUser) => {
     try {
-      // Check if chat already exists
+      // Check if a one-on-one chat already exists between the current user and the selected user
       const q = query(
         chatsRef,
-        where('participants', 'array-contains', user.userId)
+        where('participants', 'array-contains', user.userId),
+        where('isGroup', '==', false)
       );
       const querySnapshot = await getDocs(q);
       const existingChat = querySnapshot.docs.find(doc => {
         const chatData = doc.data();
-        return !chatData.isGroup && 
-          chatData.participants.includes(selectedUser.userId);
+        return chatData.participants.includes(selectedUser.userId);
       });
 
       if (existingChat) {
-        navigation.navigate('chatRoom', { // Changed this line
-          chatId: existingChat.id,
-          isGroup: false
-        });
+        // If chat exists, fetch its details and navigate to ChatRoom
+        const chatDocRef = doc(db, 'chats', existingChat.id);
+        const chatDoc = await getDoc(chatDocRef);
+        if (chatDoc.exists()) {
+          const chatDetails = { id: chatDoc.id, ...chatDoc.data() };
+          navigation.navigate('chatRoom', { // Ensure 'chatRoom' matches your navigation name
+            chatId: chatDoc.id,
+            isGroup: false,
+            chatDetails: chatDetails, // Pass chatDetails via route.params
+          });
+        } else {
+          console.log("Chat document does not exist.");
+          Alert.alert('Error', 'Chat not found. Please try again.');
+        }
         return;
       }
 
-      // Create new chat
-      const chatDoc = await addDoc(chatsRef, {
+      // If chat does not exist, create a new one
+      const chatData = {
         isGroup: false,
         participants: [user.userId, selectedUser.userId],
         participantDetails: {
@@ -90,51 +108,65 @@ export default function NewChat() {
         createdAt: serverTimestamp(),
         lastMessage: null,
         lastMessageTime: serverTimestamp()
-      });
+      };
 
-      navigation.navigate('chatRoom', { // Changed this line
-        chatId: chatDoc.id,
-        isGroup: false
-      });
+      const chatDocRef = await addDoc(chatsRef, chatData);
+
+      // Fetch the newly created chat document to get chatDetails
+      const chatDocSnapshot = await getDoc(chatDocRef);
+      if (chatDocSnapshot.exists()) {
+        const chatDetails = { id: chatDocSnapshot.id, ...chatDocSnapshot.data() };
+        navigation.navigate('chatRoom', { // Ensure 'chatRoom' matches your navigation name
+          chatId: chatDocSnapshot.id,
+          isGroup: false,
+          chatDetails: chatDetails, // Pass chatDetails via route.params
+        });
+      } else {
+        console.log("Failed to fetch the newly created chat document.");
+        Alert.alert('Error', 'Failed to create chat. Please try again.');
+      }
     } catch (error) {
       console.error('Error creating chat:', error);
+      Alert.alert('Error', 'An error occurred while creating the chat. Please try again.');
     }
   };
 
-  // Rest of your component remains the same
+  // Filter users based on search query
   const filteredUsers = users.filter(u => 
     u.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Render loading indicator while fetching users
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#3B82F6" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="p-4">
-        <View className="flex-row items-center bg-gray-100 rounded-full px-4 py-2">
-          <AntDesign name="search1" size={20} color="gray" />
-          <TextInput
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search users..."
-            className="flex-1 ml-2"
-          />
-        </View>
+    <View style={styles.container}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <AntDesign name="search1" size={20} color="gray" />
+        <TextInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search users..."
+          style={styles.searchInput}
+        />
       </View>
 
+      {/* Users List */}
       <FlatList
         data={filteredUsers}
-        keyExtractor={item => item.userId}
+        keyExtractor={item => item.userId} // Ensure 'userId' is unique
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => startChat(item)}
-            className="flex-row items-center p-4 border-b border-gray-100"
+            style={styles.userItem}
+            activeOpacity={0.7}
           >
             <Image
               source={
@@ -142,21 +174,79 @@ export default function NewChat() {
                   ? { uri: item.profileUrl }
                   : require('../../../assets/images/default-avatar.png')
               }
-              style={{ width: hp(7), height: hp(7), borderRadius: hp(3.5) }}
-              className="bg-gray-100"
+              style={styles.userImage}
             />
-            <View className="ml-4">
-              <Text className="font-semibold text-lg">{item.username}</Text>
+            <View style={styles.userInfo}>
+              <Text style={styles.username}>{item.username}</Text>
             </View>
           </TouchableOpacity>
         )}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center p-4">
-            <Text className="text-gray-500 text-lg">No users found</Text>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No users found</Text>
           </View>
         }
       />
     </View>
   );
 }
+
+// Styles for the component
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  loadingContainer: {
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6', // Tailwind gray-100
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    margin: 10,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#111827', // Tailwind gray-900
+  },
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  userImage: {
+    width: hp(7),
+    height: hp(7),
+    borderRadius: hp(3.5),
+    backgroundColor: '#f0f0f0',
+  },
+  userInfo: {
+    marginLeft: 16,
+  },
+  username: {
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#1F2937', // Tailwind gray-900
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    color: '#6B7280', // Tailwind gray-500
+    fontSize: 18,
+  },
+});

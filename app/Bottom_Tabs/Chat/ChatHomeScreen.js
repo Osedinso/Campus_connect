@@ -93,7 +93,7 @@ export default function ChatHomeScreen() {
             },
             [AI_USER_ID]: {
               username: 'AI Assistant',
-              profileUrl: 'https://your-ai-avatar-url.png' // Replace with your AI avatar URL
+              profileUrl: '../../../assets/images/question_answer_ico.png'
             }
           },
           createdAt: serverTimestamp(),
@@ -138,7 +138,7 @@ export default function ChatHomeScreen() {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Ask the AI assistant..."
+          placeholder="Ask CampusConnect AI..."
           style={styles.searchInput}
           onSubmitEditing={startAIChat}
         />
