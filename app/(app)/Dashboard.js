@@ -29,6 +29,9 @@ import ChatRoomScreen from "../Bottom_Tabs/Chat/ChatRoom";
 import NewChatScreen from "../Bottom_Tabs/Chat/NewChat";
 import NewGroup from "../Bottom_Tabs/Chat/NewGroup";
 import ChatRoomHeader from "../../components/ChatRoomHeader";
+import StatusHomeScreen from "../Bottom_Tabs/Status/StatusHomeScreen";
+import StatusViewer from "../Bottom_Tabs/Status/StatusViewer";
+import CreateStatus from "../Bottom_Tabs/Status/CreateStatus";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -120,6 +123,45 @@ const ChatStack = () => {
           }}
         />
       <Stack.Screen name="Academics" component={AcademicsScreen} />
+      <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
+      <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
+      <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
+      <Stack.Screen name="Help_a_Friend" component={HelpAFriendScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const StatusStack = () => {
+  return (
+    <Stack.Navigator 
+      screenOptions={{ 
+        header: () => <HomeHeader />,
+      }}
+    >
+      <Stack.Screen 
+        name="StatusScreen" 
+        component={StatusHomeScreen}
+        options={{
+          header: () => <HomeHeader />,
+        }}
+      />
+      <Stack.Screen 
+        name="viewStatus" 
+        component={StatusViewer}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="createStatus" 
+        component={CreateStatus}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+          headerTitle: 'Create Status',
+        }}
+      />
+       <Stack.Screen name="Academics" component={AcademicsScreen} />
       <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
       <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
       <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
@@ -235,6 +277,20 @@ export default function MyTabs() {
         component={ActivitiesStack}
         options={{
           tabBarLabel: 'Activities',
+        }}
+      />
+       <Tab.Screen 
+        name="Status" 
+        component={StatusStack}
+        options={{
+          tabBarLabel: 'Status',
+         tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons 
+             name={focused ? 'radio-button-on' : 'radio-button-off'} 
+              size={24} 
+             color={color} 
+           />
+          ),
         }}
       />
     </Tab.Navigator>

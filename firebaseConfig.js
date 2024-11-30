@@ -40,10 +40,27 @@ const roomRef = collection(db, 'rooms');
 const postsRef = collection(db, 'posts');
 const chatsRef = collection(db, 'chats');
 const groupsRef = collection(db, 'groups');
-const messagesRef = (chatId) => collection(db, 'chats', chatId, 'messages');
+const statusesRef = collection(db, 'statuses');
 
-// Helper function to get chat messages subcollection
+// Helper functions for subcollections
+const messagesRef = (chatId) => collection(db, 'chats', chatId, 'messages');
 const getChatMessages = (chatId) => collection(db, 'chats', chatId, 'messages');
+
+// Helper functions for status
+const getUserStatuses = (userId) => query(
+  statusesRef,
+  where('userId', '==', userId),
+  where('timestamp', '>', new Date(Date.now() - 24 * 60 * 60 * 1000)),
+  orderBy('timestamp', 'desc')
+);
+
+const getActiveStatuses = () => query(
+  statusesRef,
+  where('timestamp', '>', new Date(Date.now() - 24 * 60 * 60 * 1000)),
+  orderBy('timestamp', 'desc')
+);
+
+const getStatusViewers = (statusId) => collection(db, 'statuses', statusId, 'viewers');
 
 export {
   auth,
@@ -56,5 +73,9 @@ export {
   chatsRef,
   groupsRef,
   messagesRef,
-  getChatMessages
+  getChatMessages,
+  statusesRef,
+  getUserStatuses,
+  getActiveStatuses,
+  getStatusViewers
 };
