@@ -51,6 +51,8 @@ export const AuthContextProvider = ({ children }) => {
           uid: authUser.uid,
           email: authUser.email,
           username: data.username || '',
+          firstName: data.firstName || '',    // New field
+          lastName: data.lastName || '',      // New field
           profileUrl: data.profileUrl || '',
           userId: data.userId || authUser.uid,
         });
@@ -58,13 +60,17 @@ export const AuthContextProvider = ({ children }) => {
         // If user document does not exist, create it
         await setDoc(doc(db, 'users', userId), {
           username: authUser.email.split('@')[0],
+          firstName: '',                      // Initialize firstName
+          lastName: '',                       // Initialize lastName
           profileUrl: '',
           userId: userId,
         });
         setUser({
-          uid: authUser.uid,
+          uid: userId,
           email: authUser.email,
           username: authUser.email.split('@')[0],
+          firstName: '',                      // Initialize firstName
+          lastName: '',                       // Initialize lastName
           profileUrl: '',
           userId: userId,
         });
@@ -84,6 +90,8 @@ export const AuthContextProvider = ({ children }) => {
         setUser((prevUser) => ({
           ...prevUser,
           username: data.username || prevUser.username,
+          firstName: data.firstName || prevUser.firstName, // Update firstName
+          lastName: data.lastName || prevUser.lastName,     // Update lastName
           profileUrl: data.profileUrl || prevUser.profileUrl,
           userId: data.userId || userId,
         }));
@@ -123,16 +131,19 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  // Register function
-  const register = async (email, password, username) => {
+  // Updated Register function
+  const register = async (email, password, username, firstName, lastName) => {
     try {
       const response = await createUserWithEmailAndPassword(auth, email, password);
       const userId = response.user.uid;
       const defaultProfileUrl =
         'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png';
 
+      // Store additional user information in Firestore
       await setDoc(doc(db, 'users', userId), {
         username,
+        firstName,      // New field
+        lastName,       // New field
         profileUrl: defaultProfileUrl,
         userId: userId,
       });
@@ -142,6 +153,8 @@ export const AuthContextProvider = ({ children }) => {
         uid: userId,
         email: email,
         username: username,
+        firstName: firstName,   // New field in state
+        lastName: lastName,     // New field in state
         profileUrl: defaultProfileUrl,
         userId: userId,
       });
@@ -171,7 +184,7 @@ export const AuthContextProvider = ({ children }) => {
         login,
         register,
         logout,
-        updateUserData, // Added updateUserData to the context
+        updateUserData, // Existing function
       }}
     >
       {children}

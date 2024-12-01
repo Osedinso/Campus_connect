@@ -1,6 +1,7 @@
 // HomeHeader.js
+
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Modal, Alert, TextInput, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
@@ -20,7 +21,14 @@ export default function HomeHeader() {
   const navigation = useNavigation();
   const [uploading, setUploading] = useState(false);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [editProfileModalVisible, setEditProfileModalVisible] = useState(false); // New state for edit profile modal
   const [uploadProgress, setUploadProgress] = useState(0);
+  
+  // States for editing profile
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [username, setUsername] = useState(user?.username || '');
+  const [updatingProfile, setUpdatingProfile] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -107,7 +115,7 @@ export default function HomeHeader() {
         quality: 0.5,
       });
   
-      if (!result.canceled && result.assets[0]) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         setUploading(true);
         setUploadProgress(0);
         try {
@@ -127,6 +135,42 @@ export default function HomeHeader() {
       console.error('Image pick error:', error);
       Alert.alert('Error', 'Failed to pick image');
       setUploading(false);
+    }
+  };
+
+  // Function to handle profile update
+  const handleUpdateProfile = async () => {
+    // Validate inputs
+    if (!firstName.trim() || !lastName.trim() || !username.trim()) {
+      Alert.alert('Update Profile', 'Please fill all the fields!');
+      return;
+    }
+
+    setUpdatingProfile(true);
+
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      
+      // Check if the new username is already taken (optional)
+      // Implement this check based on your requirements
+      
+      // Update Firestore
+      await updateDoc(userRef, {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        username: username.trim(),
+      });
+
+      // Update user context
+      await updateUserData(user.uid);
+
+      Alert.alert('Success', 'Profile updated successfully!');
+      setEditProfileModalVisible(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    } finally {
+      setUpdatingProfile(false);
     }
   };
 
@@ -174,8 +218,8 @@ export default function HomeHeader() {
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.15,
                 shadowRadius: 8,
-                width: 180,
-                padding: 5,
+                width: 200, // Increased width to accommodate new option
+                padding: 10, // Adjusted padding
               }
             }}
           >
@@ -183,6 +227,11 @@ export default function HomeHeader() {
               text="Change Profile Picture"
               action={() => setProfileModalVisible(true)}
               icon={<Feather name="camera" size={hp(2.5)} color="#2196f3" />}
+            />
+            <MenuItem
+              text="Edit Profile"
+              action={() => setEditProfileModalVisible(true)} // New action
+              icon={<Feather name="edit" size={hp(2.5)} color="#10B981" />} // Edit icon
             />
             <MenuItem
               text="Sign Out"
@@ -193,27 +242,27 @@ export default function HomeHeader() {
         </Menu>
       </View>
 
+      {/* Modal for Changing Profile Picture */}
       <Modal
         visible={profileModalVisible}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setProfileModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white w-[90%] rounded-2xl p-6">
-            <Text className="text-2xl font-bold mb-6">Update Profile Picture</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Update Profile Picture</Text>
             
-            <View className="items-center mb-6">
+            <View style={styles.imagePreviewContainer}>
               <Image
                 source={{ 
                   uri: user?.profileUrl || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                 }}
-                style={{ width: hp(15), height: hp(15), borderRadius: hp(7.5) }}
-                className="mb-4"
+                style={styles.imagePreview}
               />
               
               {uploading && (
-                <Text className="mb-2 text-blue-500">
+                <Text style={styles.uploadingText}>
                   Uploading... {uploadProgress.toFixed(0)}%
                 </Text>
               )}
@@ -221,9 +270,9 @@ export default function HomeHeader() {
               <TouchableOpacity
                 onPress={handleImagePick}
                 disabled={uploading}
-                className={`py-3 px-6 rounded-lg ${uploading ? 'bg-gray-400' : 'bg-blue-500'}`}
+                style={[styles.button, uploading ? styles.buttonDisabled : styles.buttonPrimary]}
               >
-                <Text className="text-white font-semibold">
+                <Text style={styles.buttonText}>
                   {uploading ? 'Uploading...' : 'Choose Photo'}
                 </Text>
               </TouchableOpacity>
@@ -232,13 +281,176 @@ export default function HomeHeader() {
             <TouchableOpacity
               onPress={() => setProfileModalVisible(false)}
               disabled={uploading}
-              className="bg-gray-200 py-3 rounded-lg"
+              style={[styles.button, styles.buttonSecondary]}
             >
-              <Text className="text-center font-semibold">Cancel</Text>
+              <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      {/* Modal for Editing Profile Information */}
+      <Modal
+        visible={editProfileModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setEditProfileModalVisible(false)}
+      >
+        <ScrollView contentContainerStyle={styles.modalOverlay}>
+          <View style={styles.editProfileModalContainer}>
+            <Text style={styles.modalTitle}>Edit Profile</Text>
+
+            {/* First Name Input */}
+            <View style={styles.inputWrapper}>
+              <Feather name="user" size={hp(2.5)} color="#6B7280" style={styles.icon} />
+              <TextInput
+                value={firstName}
+                onChangeText={setFirstName}
+                style={styles.input}
+                placeholder="First Name"
+                placeholderTextColor="#9CA3AF"
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
+
+            {/* Last Name Input */}
+            <View style={styles.inputWrapper}>
+              <Feather name="user" size={hp(2.5)} color="#6B7280" style={styles.icon} />
+              <TextInput
+                value={lastName}
+                onChangeText={setLastName}
+                style={styles.input}
+                placeholder="Last Name"
+                placeholderTextColor="#9CA3AF"
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
+
+            {/* Username Input */}
+            <View style={styles.inputWrapper}>
+              <Feather name="edit" size={hp(2.5)} color="#6B7280" style={styles.icon} />
+              <TextInput
+                value={username}
+                onChangeText={setUsername}
+                style={styles.input}
+                placeholder="Username"
+                placeholderTextColor="#9CA3AF"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              onPress={handleUpdateProfile}
+              style={[styles.button, styles.buttonPrimary, { marginTop: hp(2) }]}
+              disabled={updatingProfile}
+            >
+              {updatingProfile ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.buttonText}>Save Changes</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              onPress={() => setEditProfileModalVisible(false)}
+              style={[styles.button, styles.buttonSecondary, { marginTop: hp(1) }]}
+              disabled={updatingProfile}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </Modal>
     </>
+
   );
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+  },
+  editProfileModalContainer: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: hp(2.5),
+    fontWeight: 'bold',
+    marginBottom: hp(2),
+    textAlign: 'center',
+    color: '#1F2937',
+  },
+  imagePreviewContainer: {
+    alignItems: 'center',
+    marginBottom: hp(2),
+  },
+  imagePreview: {
+    width: hp(15),
+    height: hp(15),
+    borderRadius: hp(7.5),
+    marginBottom: hp(1),
+  },
+  uploadingText: {
+    color: '#2196f3',
+    marginBottom: hp(1),
+    fontSize: hp(2),
+  },
+  button: {
+    width: '100%',
+    paddingVertical: hp(1.5),
+    borderRadius: 10,
+    alignItems: 'center',
+    marginVertical: hp(0.5),
+  },
+  buttonPrimary: {
+    backgroundColor: '#3B82F6',
+  },
+  buttonSecondary: {
+    backgroundColor: '#D1D5DB',
+  },
+  buttonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: hp(2),
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    paddingHorizontal: wp(4),
+    height: hp(6),
+    marginBottom: hp(2),
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  icon: {
+    marginRight: wp(2),
+  },
+  input: {
+    flex: 1,
+    fontSize: hp(2),
+    color: '#374151',
+  },
+});

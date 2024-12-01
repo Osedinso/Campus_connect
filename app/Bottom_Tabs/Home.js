@@ -1,7 +1,8 @@
+// Home.js
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
-
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import {
   StyleSheet,
@@ -10,6 +11,8 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { db, usersRef } from "../../firebaseConfig";
@@ -20,8 +23,12 @@ import {
   onSnapshot,
   deleteDoc,
   getDocs,
+  query,
+  where,
+  orderBy,
 } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
+import { useNavigation } from "@react-navigation/native"; // Ensure correct import
 
 const Home = ({ navigation }) => {
   const { user } = useAuth();
@@ -49,19 +56,25 @@ const Home = ({ navigation }) => {
     month: "long",
     day: "numeric",
   });
+
   const getMonthValue = (mon_value) => {
     const month = months.find((m) => m.label === mon_value);
     return month ? month.value : null;
   };
 
   useEffect(() => {
-    const fetchCourses = () => {
-      try {
-        const userRef_task = doc(db, "users", user.userId);
-        const eventsRef_task = collection(userRef_task, "Tasks");
+    // If user is not authenticated, do not proceed
+    if (!user?.userId) {
+      return;
+    }
 
-        // Set up a real-time listener with onSnapshot
-        const unsubscribe_task = onSnapshot(eventsRef_task, (snapshot) => {
+    const fetchData = () => {
+      try {
+        const userRefTask = doc(db, "users", user.userId);
+        const tasksCollection = collection(userRefTask, "Tasks");
+
+        // Real-time listener for Tasks
+        const unsubscribeTasks = onSnapshot(tasksCollection, (snapshot) => {
           const tasksList = snapshot.docs.map((doc) => ({
             title: doc.data().title,
             month_value: doc.data().month_value,
@@ -80,17 +93,20 @@ const Home = ({ navigation }) => {
               doc.data().day_value,
           }));
 
-          setTasks(tasksList);
+          // Sort tasks by date
+          tasksList.sort(
+            (a, b) => new Date(a.full_date) - new Date(b.full_date)
+          );
 
-          tasks.sort((a, b) => new Date(a.full_date) - new Date(b.full_date));
+          setTasks(tasksList);
         });
 
-        const userRef_activity = doc(db, "users", user.userId);
-        const eventsRef_activity = collection(userRef_activity, "Activities");
+        const userRefActivity = doc(db, "users", user.userId);
+        const activitiesCollection = collection(userRefActivity, "Activities");
 
-        // Set up a real-time listener with onSnapshot
-        const unsubscribe_activity = onSnapshot(
-          eventsRef_activity,
+        // Real-time listener for Activities
+        const unsubscribeActivities = onSnapshot(
+          activitiesCollection,
           (snapshot) => {
             const activityList = snapshot.docs.map((doc) => ({
               title: doc.data().title,
@@ -108,55 +124,83 @@ const Home = ({ navigation }) => {
                 "-" +
                 doc.data().day_num,
             }));
+
+            // Sort activities by date
+            activityList.sort(
+              (a, b) => new Date(a.full_date) - new Date(b.full_date)
+            );
+
             setActivities(activityList);
-            tasks.sort((a, b) => new Date(a.full_date) - new Date(b.full_date));
           }
         );
 
-        // Clean up the listener when the component unmounts
-        return unsubscribe;
+        // Cleanup listeners on unmount
+        return () => {
+          unsubscribeTasks();
+          unsubscribeActivities();
+        };
       } catch (error) {
-        console.error("Error fetching courses: ", error);
+        console.error("Error fetching data: ", error);
       }
     };
 
-    const unsubscribe = fetchCourses();
-    return () => unsubscribe && unsubscribe(); // Clean up the listener
-  });
+    const unsubscribe = fetchData();
+    return () => unsubscribe && unsubscribe();
+  }, [user?.userId]); // Use optional chaining to prevent errors
+
+  // If user is not authenticated, show a loading indicator or redirect
+  if (!user) {
+    // Optionally, navigate to SignIn screen
+    // navigation.navigate("SignIn");
+
+    // Show a loading indicator while checking authentication
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#075eec" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView className="flex basis-4/5 bg-white ">
-      {/* This is the welcome Text and date */}
+      {/* Welcome Text and Date */}
       <View className="basis-1/4 w-screen flex justify-center items-center ">
-        <View className=" flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
-          <Text className=" text-3xl text-left">Hi {user?.email || "Guest"}</Text>
+        <View className="flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
+          {/* Updated Greeting Text */}
+          <Text className="text-3xl text-left">
+            Hi {user?.firstName || user?.username || "Guest"}
+          </Text>
           <Text className="mt-3 text-sm">{formattedDate}</Text>
         </View>
       </View>
-      {/* This class contains the dashboard, todays task, and on-campus live events */}
-      <View className=" basis-2/3 w-screen h-screen items-center  ">
-        <View className="flex  w-11/12 h-full justify-start">
+
+      {/* Dashboard Content */}
+      <View className="basis-2/3 w-screen h-screen items-center">
+        <View className="flex w-11/12 h-full justify-start">
+          {/* Dashboard Header */}
           <View className="flex basis-1/12 flex-row items-center justify-between ">
-            <Text className="text-base font-medium">DashBoard</Text>
+            <Text className="text-base font-medium">Dashboard</Text>
+            <AntDesign name="ellipsis1" size={24} color="black" />
           </View>
-          {/* Todays task and Live events on campus */}
-          {/* Today's Tasks */}
-          <View className="flex  h-64 rounded-xl  justify-between items-center border-solid border border-[#989898] overflow-hidden mb-5">
-            {/* The code below is for the Todays task header */}
+
+          {/* Personal Tasks Section */}
+          <View className="flex h-64 rounded-xl justify-between items-center border-solid border border-[#989898] overflow-hidden mb-5">
+            {/* Tasks Header */}
             <View className="basis-1/5 w-full justify-center items-center bg-[#075eec] ">
               <View className="w-11/12 justify-center ">
                 <Text className="text-white">Personal Task</Text>
               </View>
             </View>
-            {/* Tasks view below shows the 2 task in todays tasks */}
 
-            <View className="  flex basis-3/5  w-11/12 justify-between pt-3 ">
+            {/* Tasks List */}
+            <View className="flex basis-3/5 w-11/12 justify-between pt-3">
               {tasks.length === 0 ? (
-                <View className=" h-full flex justify-center items-center">
-                  <Text className=" ">No Task Today</Text>
+                <View className="h-full flex justify-center items-center">
+                  <Text>No Task Today</Text>
                 </View>
               ) : (
                 tasks.slice(0, 2).map((temp_task, index) => (
-                  <View className="basis-1/2  flex flex-row">
+                  <View key={index} className="basis-1/2 flex flex-row mb-2">
                     <View className="basis-4/5 w-4/5 justify-start">
                       <View className="flex flex-row items-center">
                         <Text className="mb-2 font-semibold">
@@ -166,14 +210,14 @@ const Home = ({ navigation }) => {
 
                       <View className="flex flex-row items-center">
                         <Ionicons name="time-outline" size={15} color="black" />
-                        <Text className="ml-2 ">
+                        <Text className="ml-2">
                           {temp_task.start_hr_val}:{temp_task.start_min_val}{" "}
                           {temp_task.start_ampm_val}
                         </Text>
                       </View>
                       <View className="flex flex-row items-center">
                         <AntDesign name="calendar" size={15} color="black" />
-                        <Text className="ml-2 ">
+                        <Text className="ml-2">
                           {temp_task.day}, {temp_task.month_value}{" "}
                           {temp_task.day_value}, {temp_task.year_value}
                         </Text>
@@ -184,8 +228,7 @@ const Home = ({ navigation }) => {
               )}
             </View>
 
-            {/* This code below is for the View more button */}
-
+            {/* View More Tasks Button */}
             <TouchableOpacity
               className="basis-1/5 w-full justify-center items-center border-solid border-[#989898] border-t rounded-t-l "
               onPress={() => navigation.navigate("Calendar")}
@@ -196,24 +239,25 @@ const Home = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
-          {/* Live Events on Campus */}
-          <View className="flex  h-64 rounded-xl  justify-between items-center border-solid border border-[#989898] overflow-hidden mb-5">
-            {/* The code below is for the Todays task header */}
+
+          {/* Campus Events Section */}
+          <View className="flex h-64 rounded-xl justify-between items-center border-solid border border-[#989898] overflow-hidden mb-5">
+            {/* Events Header */}
             <View className="h-10 w-full justify-center items-center bg-[#075eec] ">
               <View className="w-11/12 justify-center ">
                 <Text className="text-white">Campus Events</Text>
               </View>
             </View>
-            {/* Tasks view below shows the 2 task in todays tasks */}
 
-            <View className="  flex basis-3/5  w-11/12 justify-between pt-3 ">
+            {/* Events List */}
+            <View className="flex basis-3/5 w-11/12 justify-between pt-3">
               {activities.length === 0 ? (
-                <View className=" h-full flex justify-center items-center">
-                  <Text className=" ">No Events Today</Text>
+                <View className="h-full flex justify-center items-center">
+                  <Text>No Events Today</Text>
                 </View>
               ) : (
                 activities.slice(0, 2).map((temp_activity, index) => (
-                  <View className="basis-1/2  flex flex-row">
+                  <View key={index} className="basis-1/2 flex flex-row mb-2">
                     <View className="basis-4/5 w-4/5 justify-start">
                       <View className="flex flex-row items-center">
                         <Text className="mb-2 font-semibold">
@@ -223,15 +267,14 @@ const Home = ({ navigation }) => {
 
                       <View className="flex flex-row items-center">
                         <Ionicons name="time-outline" size={15} color="black" />
-                        <Text className="ml-2 ">
+                        <Text className="ml-2">
                           {temp_activity.start_hr_val}:
-                          {temp_activity.start_min_val}{" "}
-                          {temp_activity.start_ampm_val}
+                          {temp_activity.start_min_val} {temp_activity.start_ampm_val}
                         </Text>
                       </View>
                       <View className="flex flex-row items-center">
                         <AntDesign name="calendar" size={15} color="black" />
-                        <Text className="ml-2 ">
+                        <Text className="ml-2">
                           {temp_activity.day}, {temp_activity.month_value}{" "}
                           {temp_activity.day_value}, {temp_activity.year_value}
                         </Text>
@@ -242,7 +285,7 @@ const Home = ({ navigation }) => {
               )}
             </View>
 
-            {/* This code below is for the View more button */}
+            {/* View More Events Button */}
             <TouchableOpacity
               className="h-10 w-full justify-center items-center border-solid border-[#989898] border-t rounded-t-l "
               onPress={() => navigation.navigate("Activities")}
@@ -253,12 +296,13 @@ const Home = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
-          {/*  Start Reading Button*/}
+
+          {/* Start Reading Button */}
           <TouchableOpacity
-            className=" h-1/6 justify-start items-center "
+            className="h-1/6 justify-start items-center"
             onPress={() => navigation.navigate("Study_Room")}
           >
-            <View className="w-2/4 h-2/5 bg-[#075eec] flex justify-center items-center  rounded-2xl">
+            <View className="w-2/4 h-2/5 bg-[#075eec] flex justify-center items-center rounded-2xl">
               <Text className="text-white">Start Reading</Text>
             </View>
           </TouchableOpacity>
@@ -270,4 +314,10 @@ const Home = ({ navigation }) => {
 
 export default Home;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

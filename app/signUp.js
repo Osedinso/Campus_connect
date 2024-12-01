@@ -1,4 +1,4 @@
-// screens/SignUp.js
+// signup.js
 
 import React, { useRef, useState } from 'react';
 import {
@@ -30,23 +30,28 @@ export default function SignUp() {
   const emailRef = useRef('');
   const passwordRef = useRef('');
   const usernameRef = useRef('');
-  const firstNameRef = useRef('');
-  const lastNameRef = useRef('');
+  const firstNameRef = useRef(''); // First Name Reference
+  const lastNameRef = useRef('');  // Last Name Reference
 
   const handleRegister = async () => {
-    if (!emailRef.current || !passwordRef.current || !usernameRef.current || !firstNameRef.current || !lastNameRef.current) {
+    const email = emailRef.current.trim();
+    const password = passwordRef.current.trim();
+    const username = usernameRef.current.trim();
+    const firstName = firstNameRef.current.trim(); // Get First Name
+    const lastName = lastNameRef.current.trim();   // Get Last Name
+
+    if (!email || !password || !username || !firstName || !lastName) {
       Alert.alert('Sign Up', 'Please fill all the fields!');
       return;
     }
     setLoading(true);
 
     let response = await register(
-      emailRef.current,
-      passwordRef.current,
-      usernameRef.current,
-      firstNameRef.current,
-      lastNameRef.current,
-      null
+      email,
+      password,
+      username,
+      firstName,  // Pass First Name
+      lastName    // Pass Last Name
     );
     setLoading(false);
 
@@ -90,27 +95,29 @@ export default function SignUp() {
                 autoCorrect={false}
               />
             </View>
+
             {/* First Name Input */}
             <View style={styles.inputWrapper}>
               <Feather name="user" size={hp(2.7)} color="#6B7280" style={styles.icon} />
               <TextInput
                 onChangeText={(value) => (firstNameRef.current = value)}
                 style={styles.input}
-                placeholder="First Name"
+                placeholder="First Name" // New Placeholder
                 placeholderTextColor="#9CA3AF"
-                autoCapitalize="none"
+                autoCapitalize="words"  // Capitalize words for names
                 autoCorrect={false}
               />
             </View>
+
             {/* Last Name Input */}
             <View style={styles.inputWrapper}>
               <Feather name="user" size={hp(2.7)} color="#6B7280" style={styles.icon} />
               <TextInput
                 onChangeText={(value) => (lastNameRef.current = value)}
                 style={styles.input}
-                placeholder="Last Name"
+                placeholder="Last Name" // New Placeholder
                 placeholderTextColor="#9CA3AF"
-                autoCapitalize="none"
+                autoCapitalize="words"  // Capitalize words for names
                 autoCorrect={false}
               />
             </View>
