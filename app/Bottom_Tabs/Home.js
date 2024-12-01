@@ -1,9 +1,4 @@
-// Home.js
-
 import { SafeAreaView } from "react-native-safe-area-context";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import {
   StyleSheet,
   Text,
@@ -12,10 +7,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
+  Animated,
+  Dimensions,
+  Platform,
 } from "react-native";
-import React, { useState, useEffect } from "react";
-import { db, usersRef } from "../../firebaseConfig";
+import React, { useState, useEffect, useRef } from "react";
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather, AntDesign, Ionicons } from "@expo/vector-icons";
 import {
   addDoc,
   collection,
@@ -27,11 +25,17 @@ import {
   where,
   orderBy,
 } from "firebase/firestore";
+import { db, usersRef } from "../../firebaseConfig";
 import { useAuth } from "../../context/authContext";
-import { useNavigation } from "@react-navigation/native"; // Ensure correct import
+
+const { width } = Dimensions.get('window');
 
 const Home = ({ navigation }) => {
   const { user } = useAuth();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [tasks, setTasks] = useState([]);
+  const [activities, setActivities] = useState([]);
+
   const months = [
     { label: "Jan", value: "1" },
     { label: "Feb", value: "2" },
@@ -48,8 +52,6 @@ const Home = ({ navigation }) => {
   ];
 
   const today = new Date();
-  const [tasks, setTasks] = useState([]);
-  const [activities, setActivities] = useState([]);
   const formattedDate = today.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -57,84 +59,48 @@ const Home = ({ navigation }) => {
     day: "numeric",
   });
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const getMonthValue = (mon_value) => {
     const month = months.find((m) => m.label === mon_value);
     return month ? month.value : null;
   };
 
   useEffect(() => {
-    // If user is not authenticated, do not proceed
-    if (!user?.userId) {
-      return;
-    }
-    
+    if (!user?.userId) return;
+
     const fetchData = () => {
       try {
         const userRefTask = doc(db, "users", user.userId);
         const tasksCollection = collection(userRefTask, "Tasks");
+        const activitiesCollection = collection(userRefTask, "Activities");
 
-        // Real-time listener for Tasks
         const unsubscribeTasks = onSnapshot(tasksCollection, (snapshot) => {
           const tasksList = snapshot.docs.map((doc) => ({
-            title: doc.data().title,
-            month_value: doc.data().month_value,
-            day: doc.data().day,
-            day_value: doc.data().day_value,
-            year_value: doc.data().year_value,
-            start_hr_val: doc.data().start_hr_val,
-            start_min_val: doc.data().start_min_val,
-            start_ampm_val: doc.data().start_ampm_val,
-            checked: doc.data().checked,
-            full_date:
-              doc.data().year_value +
-              "-" +
-              getMonthValue(doc.data().month_value) +
-              "-" +
-              doc.data().day_value,
+            id: doc.id,
+            ...doc.data(),
+            full_date: `${doc.data().year_value}-${getMonthValue(doc.data().month_value)}-${doc.data().day_value}`,
           }));
 
-          // Sort tasks by date
-          tasksList.sort(
-            (a, b) => new Date(a.full_date) - new Date(b.full_date)
-          );
-
-          setTasks(tasksList);
+          setTasks(tasksList.sort((a, b) => new Date(a.full_date) - new Date(b.full_date)));
         });
 
-        const userRefActivity = doc(db, "users", user.userId);
-        const activitiesCollection = collection(userRefActivity, "Activities");
+        const unsubscribeActivities = onSnapshot(activitiesCollection, (snapshot) => {
+          const activityList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            full_date: `${doc.data().year}-${getMonthValue(doc.data().month)}-${doc.data().day_num}`,
+          }));
 
-        // Real-time listener for Activities
-        const unsubscribeActivities = onSnapshot(
-          activitiesCollection,
-          (snapshot) => {
-            const activityList = snapshot.docs.map((doc) => ({
-              title: doc.data().title,
-              month_value: doc.data().month,
-              day: doc.data().day,
-              day_value: doc.data().day_num,
-              year_value: doc.data().year,
-              start_hr_val: doc.data().start_hr,
-              start_min_val: doc.data().start_min,
-              start_ampm_val: doc.data().start_amPm,
-              full_date:
-                doc.data().year +
-                "-" +
-                getMonthValue(doc.data().month) +
-                "-" +
-                doc.data().day_num,
-            }));
+          setActivities(activityList.sort((a, b) => new Date(a.full_date) - new Date(b.full_date)));
+        });
 
-            // Sort activities by date
-            activityList.sort(
-              (a, b) => new Date(a.full_date) - new Date(b.full_date)
-            );
-
-            setActivities(activityList);
-          }
-        );
-
-        // Cleanup listeners on unmount
         return () => {
           unsubscribeTasks();
           unsubscribeActivities();
@@ -146,14 +112,9 @@ const Home = ({ navigation }) => {
 
     const unsubscribe = fetchData();
     return () => unsubscribe && unsubscribe();
-  }, [user?.userId]); // Use optional chaining to prevent errors
+  }, [user?.userId]);
 
-  // If user is not authenticated, show a loading indicator or redirect
   if (!user) {
-    // Optionally, navigate to SignIn screen
-    // navigation.navigate("SignIn");
-
-    // Show a loading indicator while checking authentication
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#075eec" />
@@ -161,163 +122,389 @@ const Home = ({ navigation }) => {
     );
   }
 
-  return (
-    <ScrollView className="flex basis-4/5 bg-white ">
-      {/* Welcome Text and Date */}
-      <View className="basis-1/4 w-screen flex justify-center items-center ">
-        <View className="flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
-          {/* Updated Greeting Text */}
-          <Text className="text-3xl text-left">
-            Hi {user?.firstName || user?.username || "Guest"}
-          </Text>
-          <Text className="mt-3 text-sm">{formattedDate}</Text>
+  const renderTask = (task, index) => (
+    <Animated.View
+      key={task.id}
+      style={[
+        styles.taskCard,
+        {
+          opacity: fadeAnim,
+          transform: [{
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [50, 0]
+            })
+          }]
+        }
+      ]}
+    >
+      <View style={styles.taskContent}>
+        <View style={styles.taskHeader}>
+          <Text style={styles.taskTitle}>{task.title}</Text>
+          {task.checked && (
+            <View style={styles.completedBadge}>
+              <Text style={styles.completedText}>Completed</Text>
+            </View>
+          )}
+        </View>
+        
+        <View style={styles.taskDetails}>
+          <View style={styles.taskDetailRow}>
+            <Ionicons name="time-outline" size={16} color="#64748B" />
+            <Text style={styles.taskDetailText}>
+              {task.start_hr_val}:{task.start_min_val} {task.start_ampm_val}
+            </Text>
+          </View>
+          <View style={styles.taskDetailRow}>
+            <AntDesign name="calendar" size={16} color="#64748B" />
+            <Text style={styles.taskDetailText}>
+              {task.day}, {task.month_value} {task.day_value}
+            </Text>
+          </View>
         </View>
       </View>
+    </Animated.View>
+  );
 
-      {/* Dashboard Content */}
-      <View className="basis-2/3 w-screen h-screen items-center">
-        <View className="flex w-11/12 h-full justify-start">
-          {/* Dashboard Header */}
-          <View className="flex basis-1/12 flex-row items-center justify-between ">
-            <Text className="text-base font-medium">Dashboard</Text>
-            <AntDesign name="ellipsis1" size={24} color="black" />
+  const renderActivity = (activity, index) => (
+    <Animated.View
+      key={activity.id}
+      style={[
+        styles.activityCard,
+        {
+          opacity: fadeAnim,
+          transform: [{
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [50, 0]
+            })
+          }]
+        }
+      ]}
+    >
+      <View style={styles.activityContent}>
+        <Text style={styles.activityTitle}>{activity.title}</Text>
+        <View style={styles.activityDetails}>
+          <View style={styles.activityDetailRow}>
+            <Ionicons name="time-outline" size={16} color="#64748B" />
+            <Text style={styles.activityDetailText}>
+              {activity.start_hr_val}:{activity.start_min_val} {activity.start_ampm_val}
+            </Text>
           </View>
-
-          {/* Personal Tasks Section */}
-          <View className="flex h-64 rounded-xl justify-between items-center border-solid border border-[#989898] overflow-hidden mb-5">
-            {/* Tasks Header */}
-            <View className="basis-1/5 w-full justify-center items-center bg-[#075eec] ">
-              <View className="w-11/12 justify-center ">
-                <Text className="text-white">Personal Task</Text>
-              </View>
-            </View>
-
-            {/* Tasks List */}
-            <View className="flex basis-3/5 w-11/12 justify-between pt-3">
-              {tasks.length === 0 ? (
-                <View className="h-full flex justify-center items-center">
-                  <Text>No Task Today</Text>
-                </View>
-              ) : (
-                tasks.slice(0, 2).map((temp_task, index) => (
-                  <View key={index} className="basis-1/2 flex flex-row mb-2">
-                    <View className="basis-4/5 w-4/5 justify-start">
-                      <View className="flex flex-row items-center">
-                        <Text className="mb-2 font-semibold">
-                          {temp_task.title}
-                        </Text>
-                      </View>
-
-                      <View className="flex flex-row items-center">
-                        <Ionicons name="time-outline" size={15} color="black" />
-                        <Text className="ml-2">
-                          {temp_task.start_hr_val}:{temp_task.start_min_val}{" "}
-                          {temp_task.start_ampm_val}
-                        </Text>
-                      </View>
-                      <View className="flex flex-row items-center">
-                        <AntDesign name="calendar" size={15} color="black" />
-                        <Text className="ml-2">
-                          {temp_task.day}, {temp_task.month_value}{" "}
-                          {temp_task.day_value}, {temp_task.year_value}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ))
-              )}
-            </View>
-
-            {/* View More Tasks Button */}
-            <TouchableOpacity
-              className="basis-1/5 w-full justify-center items-center border-solid border-[#989898] border-t rounded-t-l "
-              onPress={() => navigation.navigate("Calendar")}
-            >
-              <View className="w-11/12 justify-between flex flex-row ">
-                <Text className="text-black">View More</Text>
-                <AntDesign name="right" size={15} color="black" />
-              </View>
-            </TouchableOpacity>
+          <View style={styles.activityDetailRow}>
+            <AntDesign name="calendar" size={16} color="#64748B" />
+            <Text style={styles.activityDetailText}>
+              {activity.day}, {activity.month_value} {activity.day_value}
+            </Text>
           </View>
+        </View>
+      </View>
+    </Animated.View>
+  );
 
-          {/* Campus Events Section */}
-          <View className="flex h-64 rounded-xl justify-between items-center border-solid border border-[#989898] overflow-hidden mb-5">
-            {/* Events Header */}
-            <View className="h-10 w-full justify-center items-center bg-[#075eec] ">
-              <View className="w-11/12 justify-center ">
-                <Text className="text-white">Campus Events</Text>
-              </View>
-            </View>
-
-            {/* Events List */}
-            <View className="flex basis-3/5 w-11/12 justify-between pt-3">
-              {activities.length === 0 ? (
-                <View className="h-full flex justify-center items-center">
-                  <Text>No Events Today</Text>
-                </View>
-              ) : (
-                activities.slice(0, 2).map((temp_activity, index) => (
-                  <View key={index} className="basis-1/2 flex flex-row mb-2">
-                    <View className="basis-4/5 w-4/5 justify-start">
-                      <View className="flex flex-row items-center">
-                        <Text className="mb-2 font-semibold">
-                          {temp_activity.title}
-                        </Text>
-                      </View>
-
-                      <View className="flex flex-row items-center">
-                        <Ionicons name="time-outline" size={15} color="black" />
-                        <Text className="ml-2">
-                          {temp_activity.start_hr_val}:
-                          {temp_activity.start_min_val} {temp_activity.start_ampm_val}
-                        </Text>
-                      </View>
-                      <View className="flex flex-row items-center">
-                        <AntDesign name="calendar" size={15} color="black" />
-                        <Text className="ml-2">
-                          {temp_activity.day}, {temp_activity.month_value}{" "}
-                          {temp_activity.day_value}, {temp_activity.year_value}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ))
-              )}
-            </View>
-
-            {/* View More Events Button */}
-            <TouchableOpacity
-              className="h-10 w-full justify-center items-center border-solid border-[#989898] border-t rounded-t-l "
-              onPress={() => navigation.navigate("Activities")}
-            >
-              <View className="w-11/12 justify-between flex flex-row ">
-                <Text className="text-black">Find More Events</Text>
-                <AntDesign name="right" size={15} color="black" />
-              </View>
-            </TouchableOpacity>
+  return (
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>
+              Hi{user?.firstName ? `, ${user.firstName}` : ''}! 👋
+            </Text>
+            <Text style={styles.date}>{formattedDate}</Text>
           </View>
-
-          {/* Start Reading Button */}
-          <TouchableOpacity
-            className="h-1/6 justify-start items-center"
-            onPress={() => navigation.navigate("Study_Room")}
-          >
-            <View className="w-2/4 h-2/5 bg-[#075eec] flex justify-center items-center rounded-2xl">
-              <Text className="text-white">Start Reading</Text>
-            </View>
+          <TouchableOpacity style={styles.profileButton}>
+            <Feather name="user" size={24} color="#1E293B" />
           </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+
+        <View style={styles.dashboardHeader}>
+          <Text style={styles.dashboardTitle}>Dashboard</Text>
+          <TouchableOpacity>
+            <Feather name="more-horizontal" size={24} color="#64748B" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Personal Tasks</Text>
+            <TouchableOpacity 
+              style={styles.viewAllButton}
+              onPress={() => navigation.navigate("Calendar")}
+            >
+              <Text style={styles.viewAllText}>View All</Text>
+              <AntDesign name="right" size={16} color="#075eec" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tasksList}>
+            {tasks.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Feather name="calendar" size={48} color="#CBD5E1" />
+                <Text style={styles.emptyStateText}>No tasks for today</Text>
+              </View>
+            ) : (
+              tasks.slice(0, 2).map(renderTask)
+            )}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Campus Events</Text>
+            <TouchableOpacity 
+              style={styles.viewAllButton}
+              onPress={() => navigation.navigate("Activities")}
+            >
+              <Text style={styles.viewAllText}>View All</Text>
+              <AntDesign name="right" size={16} color="#075eec" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.activitiesList}>
+            {activities.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Feather name="calendar" size={48} color="#CBD5E1" />
+                <Text style={styles.emptyStateText}>No events scheduled</Text>
+              </View>
+            ) : (
+              activities.slice(0, 2).map(renderActivity)
+            )}
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.startReadingButton}
+          onPress={() => navigation.navigate("Study_Room")}
+        >
+          <LinearGradient
+            colors={['#075eec', '#2D82FE']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientButton}
+          >
+            <Feather name="book-open" size={24} color="white" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Start Reading</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 };
 
-export default Home;
-
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+  },
+  greeting: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  date: {
+    fontSize: 14,
+    color: '#64748B',
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dashboardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  dashboardTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#075eec',
+    marginRight: 4,
+  },
+  tasksList: {
+    paddingHorizontal: 24,
+  },
+  taskCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginBottom: 12,
+    padding: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  taskContent: {
+    flex: 1,
+  },
+  taskHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  completedBadge: {
+    backgroundColor: '#DCF2E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  completedText: {
+    fontSize: 12,
+    color: '#047857',
+    fontWeight: '500',
+  },
+  taskDetails: {
+    marginTop: 8,
+  },
+  taskDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  taskDetailText: {
+    fontSize: 14,
+    color: '#64748B',
+    marginLeft: 8,
+  },
+  activitiesList: {
+    paddingHorizontal: 24,
+  },
+  activityCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginBottom: 12,
+    padding: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  activityDetails: {
+    marginTop: 8,
+  },
+  activityDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  activityDetailText: {
+    fontSize: 14,
+    color: '#64748B',
+    marginLeft: 8,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 32,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#64748B',
+    marginTop: 12,
+  },
+  startReadingButton: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
+  gradientButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#075eec',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  buttonIcon: {
+    marginRight: 12,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+  },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
   },
 });
+
+export default Home;

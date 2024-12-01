@@ -9,16 +9,16 @@ import {
   Modal,
   Platform,
   KeyboardAvoidingView,
+  Dimensions,
+  Animated,
 } from "react-native";
 import ColorPicker from "react-native-wheel-color-picker";
-
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useRef } from "react";
 import {
   AntDesign,
   Feather,
   Ionicons,
-  SimpleLineIcons,
+  MaterialIcons,
 } from "@expo/vector-icons";
 import { db } from "../../firebaseConfig";
 import {
@@ -29,16 +29,22 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { useAuth } from "../../context/authContext";
+import { BlurView } from "expo-blur";
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.4;
+const CARD_MARGIN = width * 0.025;
 
 const Activites = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
   const [course, set_course] = useState(null);
-  const [color, setColor] = useState("#fff");
-  const [class_list, set_class_list] = useState([
-    { course: "CSCI 410" },
-    { course: "CSCI 210" },
-  ]);
+  const [color, setColor] = useState("#6871FF");
+  const [class_list, set_class_list] = useState([]);
   const { user } = useAuth();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
     weekday: "long",
@@ -47,8 +53,19 @@ const Activites = ({ navigation }) => {
     day: "numeric",
   });
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   async function submit_form() {
-    if (user?.userId === "" || !course) return;
+    if (!user?.userId || !course?.trim()) {
+      alert("Please enter a course name");
+      return;
+    }
     try {
       const userRef = doc(db, "users", user?.userId);
       const coursesRef = collection(userRef, "Courses");
@@ -57,41 +74,46 @@ const Activites = ({ navigation }) => {
         color: color,
       });
       alert("Course added successfully!");
+      set_course(null);
+      setColor("#6871FF");
     } catch (error) {
       console.error("Error adding course: ", error);
+      alert("Failed to add course. Please try again.");
     }
   }
+
+  const confirmDelete = (courseId) => {
+    setCourseToDelete(courseId);
+    setDeleteModalVisible(true);
+  };
+
   async function delete_course(course_id) {
     try {
-      console.log(course_id)
-      // Delete the document
       const userRef = doc(db, "users", user.userId);
       const courseRef = doc(collection(userRef, "Courses"), course_id);
-      console.log(courseRef)
       await deleteDoc(courseRef);
-      console.log("Event deleted successfully!");
+      setDeleteModalVisible(false);
+      setCourseToDelete(null);
     } catch (error) {
-      console.error("Error deleting event: ", error);
+      console.error("Error deleting course: ", error);
+      alert("Failed to delete course. Please try again.");
     }
   }
+
   useEffect(() => {
     const fetchCourses = () => {
       if (user?.userId) {
         try {
           const userRef = doc(db, "users", user.userId);
           const coursesRef = collection(userRef, "Courses");
-
-          // Set up a real-time listener with onSnapshot
           const unsubscribe = onSnapshot(coursesRef, (snapshot) => {
             const coursesList = snapshot.docs.map((doc) => ({
-              id:doc.id,
+              id: doc.id,
               course: doc.data().name,
               color: doc.data().color,
             }));
             set_class_list(coursesList);
           });
-
-          // Clean up the listener when the component unmounts
           return unsubscribe;
         } catch (error) {
           console.error("Error fetching courses: ", error);
@@ -100,240 +122,378 @@ const Activites = ({ navigation }) => {
     };
 
     const unsubscribe = fetchCourses();
-    return () => unsubscribe && unsubscribe(); // Clean up the listener
+    return () => unsubscribe && unsubscribe();
   }, [user?.userId]);
-  return (
-    <View className="flex h-screen bg-white">
-      {/* This is the top nav bar  */}
-      <ScrollView className="flex basis-4/5 bg-white ">
-        {/* This is the welcome Text and date */}
-        <View className="basis-1/4 w-screen flex justify-center items-center ">
-          <View className=" flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
-            <Text className=" text-3xl text-left">Study Room</Text>
-            <Text className="mt-3 text-sm">{formattedDate}</Text>
-            <Text className="mt-5 text-base font-medium">Courses</Text>
-          </View>
+
+  const renderCourseCard = (temp_course, index) => (
+    <Animated.View
+      key={temp_course.id}
+      style={[
+        styles.cardContainer,
+        {
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: temp_course.color }]}
+        onPress={() =>
+          navigation.navigate("ExtNotes", {
+            cur_course: temp_course.course,
+            cur_course_id: temp_course.id,
+          })
+        }
+      >
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => confirmDelete(temp_course.id)}
+        >
+          <MaterialIcons name="delete-outline" size={24} color="white" />
+        </TouchableOpacity>
+        <View style={styles.cardContent}>
+          <Image
+            source={require("../../assets/images/study_ico.png")}
+            style={styles.courseIcon}
+            resizeMode="contain"
+          />
+          <Text style={styles.courseText}>{temp_course.course}</Text>
         </View>
-        {/*This view contains all the notes available to this particular student */}
-        <View className="w-full h-fit  flex items-center">
-          <View className=" basis-2/3 w-screen h-screen items-center  ">
-            <View className="flex  w-11/12 h-full justify-start flex-row">
-              {/*Notes Row 1 */}
-              <View className=" h-full w-1/2 flex items-center">
-                {class_list.map((temp_course, index) => {
-                  if (index % 2 == 0) {
-                    return (
-                      <View key={index} className="mb-5">
-                        {/* Tasks view below shows the 2 task in todays tasks */}
+      </TouchableOpacity>
+    </Animated.View>
+  );
 
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate("ExtNotes", {
-                              cur_course: temp_course.course,
-                            })
-                          }
-                        >
-                          <View
-                            className=" flex justify-evenly items-center w-40 h-40 bg-[#6871FF] rounded-lg border border-gray-400"
-                            style={{
-                              backgroundColor: temp_course.color,
-                            }}
-                          >
-                            <TouchableOpacity
-                              onPress={() => delete_course(temp_course.id)}
-                              className="flex w-4/5 items-end "
-                            >
-                              <Ionicons
-                                name="trash-outline"
-                                size={20}
-                                color="white"
-                              />
-                            </TouchableOpacity>
-                            <View>
-                              <Image
-                                source={require("../../assets/images/study_ico.png")}
-                                className="self-center  w-16 h-16 "
-                                resizeMode="contain"
-                                alt="Logo"
-                              />
-                              <Text className="text-white mt-2 font-bold">
-                                {temp_course.course}
-                              </Text>
-                            </View>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  }
-                })}
-              </View>
-              {/*Notes row 2*/}
-              <View className=" h-full w-1/2 items-center">
-                {class_list.map((temp_course, index) => {
-                  if (index % 2 != 0) {
-                    return (
-                      <View key={index} className="mb-5">
-                        {/* Tasks view below shows the 2 task in todays tasks */}
+  return (
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Study Room</Text>
+          <Text style={styles.date}>{formattedDate}</Text>
+          <Text style={styles.subtitle}>Courses</Text>
+        </View>
 
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate("ext_notes", {
-                              cur_course: temp_course.course,
-                              cur_course_id:temp_course.id
-                            })
-                          }
-                        >
-                          <View
-                            className=" flex justify-center items-center w-40 h-40  rounded-lg border border-gray-400"
-                            style={{
-                              backgroundColor: temp_course.color,
-                            }}
-                          >
-                            <Image
-                              source={require("../../assets/images/study_ico.png")}
-                              className="self-center  w-16 h-16 "
-                              resizeMode="contain"
-                              alt="Logo"
-                            />
-                            <Text className="text-white mt-2 font-bold">
-                              {temp_course.course}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  }
-                })}
-              </View>
-              {/* Todays task and Live events on campus */}
-              {/* Today's Tasks */}
-            </View>
-          </View>
+        <View style={styles.courseGrid}>
+          {class_list.map((course, index) => renderCourseCard(course, index))}
         </View>
       </ScrollView>
+
+      {/* Add Course Modal */}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalContainer}
-        >
-          <View style={styles.modalContent}>
-            <ScrollView>
+        <BlurView intensity={90} style={styles.modalContainer}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.keyboardAvoid}
+          >
+            <View style={styles.modalContent}>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setModalVisible(false)}
               >
-                <AntDesign name="close" size={20} color="black" />
+                <AntDesign name="close" size={24} color="#333" />
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>Add New Class</Text>
+
+              <Text style={styles.modalTitle}>Add New Course</Text>
+
               <TextInput
                 style={styles.input}
-                placeholder="Note Name"
-                placeholderTextColor="#B2ACAC"
-                onChangeText={(text) => set_course(text)}
-              />
-              <ColorPicker
-                color={color}
-                onColorChange={(color) => setColor(color)}
-                thumbSize={30}
-                sliderSize={30}
-                noSnap={true}
-                row={false}
+                placeholder="Course Name (e.g., CSCI 410)"
+                placeholderTextColor="#999"
+                value={course}
+                onChangeText={set_course}
               />
 
+              <View style={styles.colorPickerContainer}>
+                <Text style={styles.colorPickerLabel}>Choose Course Color</Text>
+                <ColorPicker
+                  color={color}
+                  onColorChange={setColor}
+                  thumbSize={40}
+                  sliderSize={40}
+                  noSnap={true}
+                  row={false}
+                />
+              </View>
+
               <TouchableOpacity
-                style={styles.submitButton}
+                style={[styles.submitButton, !course?.trim() && styles.buttonDisabled]}
                 onPress={() => {
                   submit_form();
                   setModalVisible(false);
                 }}
+                disabled={!course?.trim()}
               >
                 <Text style={styles.submitButtonText}>Add Course</Text>
               </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </KeyboardAvoidingView>
+            </View>
+          </KeyboardAvoidingView>
+        </BlurView>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={deleteModalVisible}
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <BlurView intensity={90} style={styles.modalContainer}>
+          <View style={styles.deleteModalContent}>
+            <Text style={styles.deleteModalTitle}>Delete Course</Text>
+            <Text style={styles.deleteModalText}>
+              Are you sure you want to delete this course? This action cannot be undone.
+            </Text>
+            <View style={styles.deleteModalButtons}>
+              <TouchableOpacity
+                style={[styles.deleteModalButton, styles.cancelButton]}
+                onPress={() => setDeleteModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.deleteModalButton, styles.confirmButton]}
+                onPress={() => delete_course(courseToDelete)}
+              >
+                <Text style={styles.confirmButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
+
+      {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.floatingButton}
         onPress={() => setModalVisible(true)}
       >
-        <AntDesign name="plus" size={40} color="white" />
+        <AntDesign name="plus" size={32} color="white" />
       </TouchableOpacity>
     </View>
   );
 };
 
-export default Activites;
-
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    padding: 20,
+    paddingTop: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  date: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 8,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginTop: 24,
+  },
+  courseGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 10,
+    justifyContent: 'space-between',
+  },
+  cardContainer: {
+    width: CARD_WIDTH,
+    margin: CARD_MARGIN,
+  },
+  card: {
+    height: CARD_WIDTH * 1.2,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    alignSelf: 'flex-end',
+  },
+  courseIcon: {
+    width: CARD_WIDTH * 0.4,
+    height: CARD_WIDTH * 0.4,
+    marginBottom: 12,
+  },
+  courseText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    textAlign: 'center',
+  },
   floatingButton: {
-    position: "absolute",
+    position: 'absolute',
     right: 20,
-    bottom: 200,
+    bottom: 20,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#075eec",
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: '#075eec',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    elevation: 5,
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  keyboardAvoid: {
+    width: '100%',
+    alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
-    padding: 20,
-    width: "90%",
-    maxHeight: "80%",
+    padding: 24,
+    width: '90%',
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   closeButton: {
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
+    padding: 8,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
-    borderColor: "#B2ACAC",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  label: {
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    padding: 16,
     fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 5,
+    backgroundColor: '#F8F9FA',
+    marginBottom: 24,
+  },
+  colorPickerContainer: {
+    marginBottom: 24,
+  },
+  colorPickerLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 12,
   },
   submitButton: {
-    backgroundColor: "#075eec",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginTop: 10,
+    backgroundColor: '#075eec',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#A0AEC0',
   },
   submitButtonText: {
-    color: "white",
-    fontWeight: "bold",
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  container: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
+  deleteModalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 24,
+    width: '90%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  deleteModalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 16,
+  },
+  deleteModalText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  deleteModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  deleteModalButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: '#F8F9FA',
+  },
+  confirmButton: {
+    backgroundColor: '#DC3545',
+  },
+  cancelButtonText: {
+    color: '#1A1A1A',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
+
+export default Activites;
