@@ -245,7 +245,7 @@ const Activites = ({ navigation }) => {
                   setModalVisible(false);
                 }}
               >
-                <Text style={styles.submitButtonText}>Add Event</Text>
+                <Text style={styles.submitButtonText}>Add Course</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>

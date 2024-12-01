@@ -260,7 +260,7 @@ const Activities = ({ navigation }) => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.eventsContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionHeaderText}>Today</Text>
+            <Text style={styles.sectionHeaderText}>Upcoming Activities</Text>
           </View>
           {events.map((temp_event, index) => (
             <View key={index} style={styles.eventCard}>

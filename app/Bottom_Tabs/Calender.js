@@ -231,7 +231,7 @@ const App = ({ navigation }) => {
           markedDates={{ ...markedDates, ...temp_selected_day }}
           onDayPress={(day) => {
             set_selected_day(day.day);
-            updatedMarkedDates = {
+            const updatedMarkedDates = {
               [day.dateString]: { selected: true, selectedColor: "blue" },
             };
             set_temp_selected_day(updatedMarkedDates);
@@ -335,17 +335,17 @@ const App = ({ navigation }) => {
               <Text style={styles.modalTitle}>Create Your Event</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Event Title"
+                placeholder="Task Title"
                 placeholderTextColor="#B2ACAC"
                 onChangeText={(text) => set_title(text)}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Event Location"
+                placeholder="Task Location"
                 placeholderTextColor="#B2ACAC"
                 onChangeText={(text) => set_location(text)}
               />
-              <Text style={styles.label}>Event Date</Text>
+              <Text style={styles.label}>Task Due Date</Text>
               <View style={styles.dateContainer}>
                 <Dropdown
                   style={styles.dropdown}
@@ -375,7 +375,7 @@ const App = ({ navigation }) => {
                   onChange={(item) => setYear(item.value)}
                 />
               </View>
-              <Text style={styles.label}>Start Time</Text>
+              <Text style={styles.label}>Task Due Time</Text>
               <View style={styles.timeContainer}>
                 <Dropdown
                   style={styles.dropdown}

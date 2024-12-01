@@ -137,7 +137,6 @@ const Home = ({ navigation }) => {
         <View className="flex  w-11/12 h-full justify-start">
           <View className="flex basis-1/12 flex-row items-center justify-between ">
             <Text className="text-base font-medium">DashBoard</Text>
-            <AntDesign name="ellipsis1" size={24} color="black" />
           </View>
           {/* Todays task and Live events on campus */}
           {/* Today's Tasks */}
