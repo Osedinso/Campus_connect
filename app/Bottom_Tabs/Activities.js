@@ -183,6 +183,13 @@ const Activities = ({ navigation }) => {
       console.error("Error adding course: ", error);
     }
   }
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   useEffect(() => {
     const fetchCourses = () => {
@@ -248,7 +255,11 @@ const Activities = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Text style={styles.headerText}>Events</Text>
+          <View className="flex flex-col">
+            <Text style={styles.headerText}>Events</Text>
+            <Text className="mt-2 text-sm ">{formattedDate}</Text>
+          </View>
+
           <TouchableOpacity
             style={styles.addEventButton}
             onPress={() => setModalVisible(true)}
@@ -267,7 +278,7 @@ const Activities = ({ navigation }) => {
               <View style={styles.eventDetails}>
                 <View className="flex-row w-full h-8 items-center justify-between">
                   <Text style={styles.eventTitle}>{temp_event.title}</Text>
-                  { (
+                  {
                     <TouchableOpacity
                       onPress={() =>
                         delete_event(
@@ -279,7 +290,7 @@ const Activities = ({ navigation }) => {
                     >
                       <Ionicons name="trash-outline" size={15} color="black" />
                     </TouchableOpacity>
-                  )}
+                  }
                 </View>
 
                 <Text style={styles.eventInfo}>

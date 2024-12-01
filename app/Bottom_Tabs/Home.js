@@ -67,7 +67,7 @@ const Home = ({ navigation }) => {
     if (!user?.userId) {
       return;
     }
-
+    
     const fetchData = () => {
       try {
         const userRefTask = doc(db, "users", user.userId);

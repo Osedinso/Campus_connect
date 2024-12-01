@@ -4,6 +4,13 @@ import { AntDesign } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Academics = ({ navigation }) => {
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   const academicOptions = [
     {
       id: 1,
@@ -70,7 +77,7 @@ const Academics = ({ navigation }) => {
         {/* Header Section */}
         <View className="px-6 mt-4 mb-6">
           <Text className="text-3xl font-semibold text-gray-900">Academics</Text>
-          <Text className="mt-2 text-sm text-gray-500">{getCurrentDate()}</Text>
+          <Text className="mt-2 text-sm text-gray-500">{formattedDate}</Text>
         </View>
 
         {/* Sections Header */}

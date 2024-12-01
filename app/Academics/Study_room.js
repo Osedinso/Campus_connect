@@ -39,6 +39,13 @@ const Activites = ({ navigation }) => {
     { course: "CSCI 210" },
   ]);
   const { user } = useAuth();
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   async function submit_form() {
     if (user?.userId === "" || !course) return;
@@ -103,7 +110,7 @@ const Activites = ({ navigation }) => {
         <View className="basis-1/4 w-screen flex justify-center items-center ">
           <View className=" flex flex-col w-11/12 justify-end items-start mt-3 mb-4">
             <Text className=" text-3xl text-left">Study Room</Text>
-            <Text className="mt-3 text-sm">June 04, 2024</Text>
+            <Text className="mt-3 text-sm">{formattedDate}</Text>
             <Text className="mt-5 text-base font-medium">Courses</Text>
           </View>
         </View>
@@ -225,7 +232,7 @@ const Activites = ({ navigation }) => {
               <Text style={styles.modalTitle}>Add New Class</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Course Name (e.g CSCI 289)"
+                placeholder="Note Name"
                 placeholderTextColor="#B2ACAC"
                 onChangeText={(text) => set_course(text)}
               />

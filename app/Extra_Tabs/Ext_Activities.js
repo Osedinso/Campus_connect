@@ -68,7 +68,8 @@ const Ext_Activities = ({ route, navigation }) => {
       }
 
       await addDoc(activityRef, {
-        name: user.username,
+        name: user.firstName,
+        lastName: user.lastName,
         email: user.email,
       });
 
@@ -150,6 +151,7 @@ const Ext_Activities = ({ route, navigation }) => {
         const unsubscribe = onSnapshot(activityRef, (snapshot) => {
           const ActivitiesList = snapshot.docs.map((doc) => ({
             name: doc.data().name,
+            lastName: doc.data().lastName,
             email: doc.data().email,
           }));
           setAttendee(ActivitiesList);
@@ -256,6 +258,7 @@ const Ext_Activities = ({ route, navigation }) => {
                     <Text className="font-bold w-2/5">
                       Name <Text></Text>
                     </Text>
+                    
                     <Text className="font-bold w-3/5"> Email </Text>
                   </View>
                   {attendee.map((temp_event, index) => (
@@ -264,7 +267,8 @@ const Ext_Activities = ({ route, navigation }) => {
                       key={index}
                       style={styles.eventCard}
                     >
-                      <Text className=" w-2/5">{temp_event.name}</Text>
+                      <Text className=" w-2/5">{temp_event.name} {temp_event.lastName}</Text>
+                      
                       <Text className=" w-3/5"> {temp_event.email}</Text>
                     </View>
                   ))}
