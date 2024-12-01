@@ -57,6 +57,7 @@ const CalendarStack = () => (
     <Stack.Screen name="CalendarScreen" component={CalendarScreen} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
     <Stack.Screen name="ExtNotes" component={ExtNotes} />
+    <Stack.Screen name="Opened_note" component={Opened_Note} />
     <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
     <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
     <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
@@ -71,6 +72,7 @@ const ActivitiesStack = () => (
     {/* Include extra activities and notes screens */}
     <Stack.Screen name="ext_activities" component={ExtActivities} />
     <Stack.Screen name="ExtNotes" component={ExtNotes} />
+    <Stack.Screen name="Opened_note" component={Opened_Note} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
     <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
     <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
@@ -97,7 +99,6 @@ const ChatStack = () => {
           header: () => <HomeHeader />,
         }}
       />
-      <Stack.Screen name="ExtNotes" component={ExtNotes} />
       <Stack.Screen 
         name="chatRoom"
         component={ChatRoomScreen}
@@ -128,6 +129,8 @@ const ChatStack = () => {
         />
       <Stack.Screen name="Academics" component={AcademicsScreen} />
       <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
+      <Stack.Screen name="ExtNotes" component={ExtNotes} />
+      <Stack.Screen name="Opened_note" component={Opened_Note} />
       <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
       <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
       <Stack.Screen name="Help_a_Friend" component={HelpAFriendScreen} />
@@ -167,6 +170,8 @@ const StatusStack = () => {
       />
        <Stack.Screen name="Academics" component={AcademicsScreen} />
       <Stack.Screen name="Study_Room" component={StudyRoomScreen} />
+      <Stack.Screen name="ExtNotes" component={ExtNotes} />
+      <Stack.Screen name="Opened_note" component={Opened_Note} />
       <Stack.Screen name="Quick_Exam" component={QuickExamScreen} />
       <Stack.Screen name="Need_a_Hand" component={NeedAHandScreen} />
       <Stack.Screen name="Help_a_Friend" component={HelpAFriendScreen} />
