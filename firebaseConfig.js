@@ -1,8 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getReactNativePersistence, initializeAuth, getAuth } from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore, collection } from 'firebase/firestore';
+import { getFirestore, collection, query, where, orderBy } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 import { getStorage } from "firebase/storage";
 
@@ -23,16 +22,31 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 let auth;
 try {
   auth = getAuth(app);
-} catch {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-  });
+} catch (error) {
+  try {
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage)
+    });
+  } catch (initError) {
+    console.error('Error initializing auth:', initError);
+    throw initError;
+  }
 }
 
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
-const functions = getFunctions(app, 'us-central1');
-const storage = getStorage(app);
+// Analytics is not available in React Native, skip initialization
+// const analytics = getAnalytics(app);
+let db;
+let functions;
+let storage;
+
+try {
+  db = getFirestore(app);
+  functions = getFunctions(app, 'us-central1');
+  storage = getStorage(app);
+} catch (error) {
+  console.error('Error initializing Firebase services:', error);
+  throw error;
+}
 
 // Collection references
 const usersRef = collection(db, 'users');

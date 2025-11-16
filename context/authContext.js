@@ -1,6 +1,7 @@
 // authContext.js
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -173,7 +174,11 @@ export const AuthContextProvider = ({ children }) => {
 
   // Provide a loading state to prevent rendering before authentication status is known
   if (loading) {
-    return null; // Or render a loading indicator
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (

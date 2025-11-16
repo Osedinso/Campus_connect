@@ -9,6 +9,6 @@ export default function Index() {
   if (user) {
     return <Redirect href="/(app)/Dashboard" />;
   } else {
-    return <Redirect href="/signin" />;
+    return <Redirect href="/signIn" />;
   }
 }
