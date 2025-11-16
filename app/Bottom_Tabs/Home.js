@@ -72,55 +72,57 @@ const Home = ({ navigation }) => {
     return month ? month.value : null;
   };
 
-  useEffect(() => {
-    if (!user?.userId) return;
+  // AUTHENTICATION DISABLED - Skip data fetching
+  // useEffect(() => {
+  //   if (!user?.userId) return;
 
-    const fetchData = () => {
-      try {
-        const userRefTask = doc(db, "users", user.userId);
-        const tasksCollection = collection(userRefTask, "Tasks");
-        const activitiesCollection = collection(userRefTask, "Activities");
+  //   const fetchData = () => {
+  //     try {
+  //       const userRefTask = doc(db, "users", user.userId);
+  //       const tasksCollection = collection(userRefTask, "Tasks");
+  //       const activitiesCollection = collection(userRefTask, "Activities");
 
-        const unsubscribeTasks = onSnapshot(tasksCollection, (snapshot) => {
-          const tasksList = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-            full_date: `${doc.data().year_value}-${getMonthValue(doc.data().month_value)}-${doc.data().day_value}`,
-          }));
+  //       const unsubscribeTasks = onSnapshot(tasksCollection, (snapshot) => {
+  //         const tasksList = snapshot.docs.map((doc) => ({
+  //           id: doc.id,
+  //           ...doc.data(),
+  //           full_date: `${doc.data().year_value}-${getMonthValue(doc.data().month_value)}-${doc.data().day_value}`,
+  //         }));
 
-          setTasks(tasksList.sort((a, b) => new Date(a.full_date) - new Date(b.full_date)));
-        });
+  //         setTasks(tasksList.sort((a, b) => new Date(a.full_date) - new Date(b.full_date)));
+  //       });
 
-        const unsubscribeActivities = onSnapshot(activitiesCollection, (snapshot) => {
-          const activityList = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-            full_date: `${doc.data().year}-${getMonthValue(doc.data().month)}-${doc.data().day_num}`,
-          }));
+  //       const unsubscribeActivities = onSnapshot(activitiesCollection, (snapshot) => {
+  //         const activityList = snapshot.docs.map((doc) => ({
+  //           id: doc.id,
+  //           ...doc.data(),
+  //           full_date: `${doc.data().year}-${getMonthValue(doc.data().month)}-${doc.data().day_num}`,
+  //         }));
 
-          setActivities(activityList.sort((a, b) => new Date(a.full_date) - new Date(b.full_date)));
-        });
+  //         setActivities(activityList.sort((a, b) => new Date(a.full_date) - new Date(b.full_date)));
+  //       });
 
-        return () => {
-          unsubscribeTasks();
-          unsubscribeActivities();
-        };
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
+  //       return () => {
+  //         unsubscribeTasks();
+  //         unsubscribeActivities();
+  //       };
+  //     } catch (error) {
+  //       console.error("Error fetching data: ", error);
+  //     }
+  //   };
 
-    const unsubscribe = fetchData();
-    return () => unsubscribe && unsubscribe();
-  }, [user?.userId]);
+  //   const unsubscribe = fetchData();
+  //   return () => unsubscribe && unsubscribe();
+  // }, [user?.userId]);
 
-  if (!user) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#075eec" />
-      </View>
-    );
-  }
+  // AUTHENTICATION DISABLED - Allow component to render without user
+  // if (!user) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <ActivityIndicator size="large" color="#075eec" />
+  //     </View>
+  //   );
+  // }
 
   const renderTask = (task, index) => (
     <Animated.View
@@ -208,7 +210,7 @@ const Home = ({ navigation }) => {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>
-              Hi{user?.firstName ? `, ${user.firstName}` : ''}! 👋
+              Hi! 👋
             </Text>
             <Text style={styles.date}>{formattedDate}</Text>
           </View>

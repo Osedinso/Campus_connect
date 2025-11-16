@@ -39,8 +39,10 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 // Import OpenAI API
 import { Configuration, OpenAIApi } from 'openai';
 
-// Import environment variables (ensure you have set up react-native-dotenv)
-import { OPENAI_API_KEY } from '@env';
+// Use Expo's built-in environment variable support
+// Access via process.env.EXPO_PUBLIC_OPENAI_API_KEY (if using .env file)
+// Or directly: const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MESSAGE_MAX_WIDTH = SCREEN_WIDTH * 0.75;

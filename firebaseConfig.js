@@ -1,6 +1,12 @@
+// Import Firebase core first
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getReactNativePersistence, initializeAuth, getAuth } from 'firebase/auth';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// AUTHENTICATION COMMENTED OUT
+// Import Firebase Auth - ensure it's loaded
+// import { getReactNativePersistence, initializeAuth, getAuth } from 'firebase/auth';
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Import other Firebase services
 import { getFirestore, collection, query, where, orderBy } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 import { getStorage } from "firebase/storage";
@@ -16,22 +22,46 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase only if it hasn't been initialized
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-
-// Initialize services
-let auth;
+let app;
 try {
-  auth = getAuth(app);
+  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 } catch (error) {
-  try {
-    auth = initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage)
-    });
-  } catch (initError) {
-    console.error('Error initializing auth:', initError);
-    throw initError;
-  }
+  console.error('Error initializing Firebase app:', error);
+  throw error;
 }
+
+// AUTHENTICATION COMPLETELY COMMENTED OUT
+// Initialize Auth with AsyncStorage persistence for React Native
+// AUTHENTICATION IS DISABLED - Return null to prevent errors
+// This allows other Firebase services (db, storage) to work without auth
+// let authInstance = null;
+
+// function initializeAuthInstance() {
+//   // Authentication is disabled - return null silently
+//   // This prevents Firebase Auth initialization errors
+//   return null;
+  
+//   // Original code commented out:
+//   // if (authInstance) {
+//   //   return authInstance;
+//   // }
+//   // try {
+//   //   try {
+//   //     authInstance = getAuth(app);
+//   //     return authInstance;
+//   //   } catch (e) {
+//   //     authInstance = initializeAuth(app, {
+//   //       persistence: getReactNativePersistence(AsyncStorage)
+//   //     });
+//   //     return authInstance;
+//   //   }
+//   // } catch (error) {
+//   //   return null;
+//   // }
+// }
+
+// Initialize auth - returns null since auth is disabled
+const auth = null; // AUTHENTICATION DISABLED
 
 // Analytics is not available in React Native, skip initialization
 // const analytics = getAnalytics(app);
@@ -45,36 +75,45 @@ try {
   storage = getStorage(app);
 } catch (error) {
   console.error('Error initializing Firebase services:', error);
-  throw error;
+  // Don't throw - allow app to continue
+  db = null;
+  functions = null;
+  storage = null;
 }
 
-// Collection references
-const usersRef = collection(db, 'users');
-const roomRef = collection(db, 'rooms');
-const postsRef = collection(db, 'posts');
-const chatsRef = collection(db, 'chats');
-const groupsRef = collection(db, 'groups');
-const statusesRef = collection(db, 'statuses');
+// Collection references (only if db is initialized)
+const usersRef = db ? collection(db, 'users') : null;
+const roomRef = db ? collection(db, 'rooms') : null;
+const postsRef = db ? collection(db, 'posts') : null;
+const chatsRef = db ? collection(db, 'chats') : null;
+const groupsRef = db ? collection(db, 'groups') : null;
+const statusesRef = db ? collection(db, 'statuses') : null;
 
 // Helper functions for subcollections
-const messagesRef = (chatId) => collection(db, 'chats', chatId, 'messages');
-const getChatMessages = (chatId) => collection(db, 'chats', chatId, 'messages');
+const messagesRef = (chatId) => db ? collection(db, 'chats', chatId, 'messages') : null;
+const getChatMessages = (chatId) => db ? collection(db, 'chats', chatId, 'messages') : null;
 
 // Helper functions for status
-const getUserStatuses = (userId) => query(
-  statusesRef,
-  where('userId', '==', userId),
-  where('timestamp', '>', new Date(Date.now() - 24 * 60 * 60 * 1000)),
-  orderBy('timestamp', 'desc')
-);
+const getUserStatuses = (userId) => {
+  if (!db || !statusesRef) return null;
+  return query(
+    statusesRef,
+    where('userId', '==', userId),
+    where('timestamp', '>', new Date(Date.now() - 24 * 60 * 60 * 1000)),
+    orderBy('timestamp', 'desc')
+  );
+};
 
-const getActiveStatuses = () => query(
-  statusesRef,
-  where('timestamp', '>', new Date(Date.now() - 24 * 60 * 60 * 1000)),
-  orderBy('timestamp', 'desc')
-);
+const getActiveStatuses = () => {
+  if (!db || !statusesRef) return null;
+  return query(
+    statusesRef,
+    where('timestamp', '>', new Date(Date.now() - 24 * 60 * 60 * 1000)),
+    orderBy('timestamp', 'desc')
+  );
+};
 
-const getStatusViewers = (statusId) => collection(db, 'statuses', statusId, 'viewers');
+const getStatusViewers = (statusId) => db ? collection(db, 'statuses', statusId, 'viewers') : null;
 
 export {
   auth,

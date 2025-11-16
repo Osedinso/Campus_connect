@@ -1,8 +1,10 @@
 // Import necessary libraries and components
 import React, { useEffect, useState } from "react";
+import { NavigationIndependentTree } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
-import { useAuth } from '../../context/authContext';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// AUTHENTICATION COMMENTED OUT
+// import { useAuth } from '../../context/authContext';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,11 +36,15 @@ import StatusViewer from "../Bottom_Tabs/Status/StatusViewer";
 import CreateStatus from "../Bottom_Tabs/Status/CreateStatus";
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator(); // Using native-stack instead of stack to avoid gesture handler issues
 
 // Stack Navigator for Home Tab
 const HomeStack = () => (
-  <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
+  <Stack.Navigator 
+    screenOptions={{ 
+      header: () => <HomeHeader />,
+    }}
+  >
     <Stack.Screen name="HomeScreen" component={HomeScreen} />
     <Stack.Screen name="Profile" component={Profile} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
@@ -53,7 +59,11 @@ const HomeStack = () => (
 
 // Stack Navigator for Calendar Tab
 const CalendarStack = () => (
-  <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
+  <Stack.Navigator 
+    screenOptions={{ 
+      header: () => <HomeHeader />,
+    }}
+  >
     <Stack.Screen name="CalendarScreen" component={CalendarScreen} />
     <Stack.Screen name="Academics" component={AcademicsScreen} />
     <Stack.Screen name="ExtNotes" component={ExtNotes} />
@@ -67,7 +77,11 @@ const CalendarStack = () => (
 
 // Stack Navigator for Activities Tab
 const ActivitiesStack = () => (
-  <Stack.Navigator screenOptions={{ header: () => <HomeHeader /> }}>
+  <Stack.Navigator 
+    screenOptions={{ 
+      header: () => <HomeHeader />,
+    }}
+  >
     <Stack.Screen name="ActivitiesScreen" component={ActivitiesScreen} />
     {/* Include extra activities and notes screens */}
     <Stack.Screen name="ext_activities" component={ExtActivities} />
@@ -83,7 +97,9 @@ const ActivitiesStack = () => (
 
 // Stack Navigator for Chat Tab
 const ChatStack = () => {
-  const { user } = useAuth();
+  // AUTHENTICATION COMMENTED OUT
+  // const { user } = useAuth();
+  const user = null; // Placeholder since auth is disabled
 
   // Remove the users state and useEffect as they're now handled in individual components
   return (
@@ -180,84 +196,91 @@ const StatusStack = () => {
 };
 
 export default function MyTabs() {
-  const { user } = useAuth();
+  // AUTHENTICATION COMMENTED OUT
+  // const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const insets = useSafeAreaInsets();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('userId', '!=', user.userId));
-        const querySnapshot = await getDocs(q);
-        const fetchedUsers = querySnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-        setUsers(fetchedUsers);
-      } catch (error) {
-        console.error("Error fetching users: ", error);
-      }
-    };
+  // AUTHENTICATION COMMENTED OUT
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       if (!db) {
+  //         console.warn('Firebase db is not initialized');
+  //         return;
+  //       }
+  //       const usersRef = collection(db, 'users');
+  //       const q = query(usersRef, where('userId', '!=', user?.userId || ''));
+  //       const querySnapshot = await getDocs(q);
+  //       const fetchedUsers = querySnapshot.docs.map(doc => ({
+  //         ...doc.data(),
+  //         id: doc.id,
+  //       }));
+  //       setUsers(fetchedUsers);
+  //     } catch (error) {
+  //       console.error("Error fetching users: ", error);
+  //     }
+  //   };
 
-    if (user) {
-      fetchUsers();
-    }
-  }, [user]);
+  //   if (user && db) {
+  //     fetchUsers();
+  //   }
+  // }, [user]);
 
   return (
-    <Tab.Navigator
-      initialRouteName="Home"
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#9CA3AF',
-        tabBarStyle: Platform.select({
-          ios: {
-            backgroundColor: '#FFFFFF',
-            borderTopWidth: 1,
-            borderTopColor: '#E5E7EB',
-            paddingBottom: insets.bottom,
-            paddingTop: 5,
-            height: 85,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-          },
-          android: {
-            backgroundColor: '#FFFFFF',
-            borderTopWidth: 1,
-            borderTopColor: '#E5E7EB',
-            paddingBottom: 10,
-            paddingTop: 5,
-            height: 65,
-            elevation: 5,
-          },
-        }),
-        tabBarShowLabel: true,
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <NavigationIndependentTree>
+      <Tab.Navigator
+        initialRouteName="Home"
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarActiveTintColor: '#3B82F6',
+          tabBarInactiveTintColor: '#9CA3AF',
+          tabBarStyle: Platform.select({
+            ios: {
+              backgroundColor: '#FFFFFF',
+              borderTopWidth: 1,
+              borderTopColor: '#E5E7EB',
+              paddingBottom: insets.bottom,
+              paddingTop: 5,
+              height: 85,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+            },
+            android: {
+              backgroundColor: '#FFFFFF',
+              borderTopWidth: 1,
+              borderTopColor: '#E5E7EB',
+              paddingBottom: 10,
+              paddingTop: 5,
+              height: 65,
+              elevation: 5,
+            },
+          }),
+          tabBarShowLabel: true,
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
 
-          switch (route.name) {
-            case 'Home':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'Calendar':
-              iconName = focused ? 'calendar' : 'calendar-outline';
-              break;
-            case 'Chat':
-              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-              break;
-            case 'Activities':
-              iconName = focused ? 'people' : 'people-outline';
-              break;
-            default:
-              iconName = 'ellipse';
-          }
-          return <Ionicons name={iconName} size={24} color={color} />;
-        },
-      })}
+            switch (route.name) {
+              case 'Home':
+                iconName = focused ? 'home' : 'home-outline';
+                break;
+              case 'Calendar':
+                iconName = focused ? 'calendar' : 'calendar-outline';
+                break;
+              case 'Chat':
+                iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+                break;
+              case 'Activities':
+                iconName = focused ? 'people' : 'people-outline';
+                break;
+              default:
+                iconName = 'ellipse';
+            }
+            return <Ionicons name={iconName} size={24} color={color} />;
+          },
+        })}
     >
       {/* Visible Tabs */}
       <Tab.Screen 
@@ -302,6 +325,7 @@ export default function MyTabs() {
           ),
         }}
       />
-    </Tab.Navigator>
+      </Tab.Navigator>
+    </NavigationIndependentTree>
   );
 }
